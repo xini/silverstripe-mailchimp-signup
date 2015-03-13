@@ -105,12 +105,12 @@ class MailChimpSignupPage_Controller extends Page_Controller {
 					switch ($field['field_type']) {
 					
 						case 'text':
-							$fields->push( $newField = new TextField($field['tag'], $field['name'], $field['default'], $field['size']));
+							$fields->push( $newField = new TextField($field['tag'], $field['name'], $field['default'], 255));
 						break;
 						
 						case 'e-mail':
 						case 'email':
-							$fields->push( $newField = new EmailField($field['tag'], $field['name'], $field['default'], $field['size']));
+							$fields->push( $newField = new EmailField($field['tag'], $field['name'], $field['default'], 255));
 						break;
 						
 						case 'dropdown':
