@@ -57,6 +57,7 @@ class MailChimpSignupPage_Controller extends Page_Controller {
 	
 	private static $allowed_actions = array(
 		'Form',
+		'success',
 	);
 	
 	public function Form() {
@@ -311,28 +312,25 @@ class MailChimpSignupPage_Controller extends Page_Controller {
 			}
 		}
 		
-		if ($bRetryData) {
+		if ($bRetryData) { // error
 			// Store the submitted data in case the user needs to try again
 			Session::set("FormInfo.".$form->FormName().".data", $data);
+			// add error message
+			$form->addErrorMessage("Form_SubscribeForm_message", $sFeedbackMsg, $sFeedbackType);
+			// redirct back
+			return $this->redirectBack();
 		} else {
 			$aSessData = Session::get("FormInfo.".$form->FormName().".data");
 			if(is_array($aSessData)) {
 				Session::clear("FormInfo.".$form->FormName().".data");
 			}
+			return $this->redirect($this->join_links($this->Link, 'success'));
 		}
 
-/*
-		debug::show($data);
-		debug::show($mergeVars);
-		debug::show( $sFeedbackMsg . ' - '. $sFeedbackType);
-		die('stop');
-*/
-		
-		$form->addErrorMessage("Form_SubscribeForm_message", $sFeedbackMsg, $sFeedbackType);
-		
-		$this->redirectBack();
-		
 	}
-			
+	
+	public function success() {
+		return $this;
+	}
 
 }
