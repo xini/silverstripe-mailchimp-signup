@@ -43,14 +43,6 @@ class MailChimpSignupPage extends Page {
 		return $fields;
 	}
 	
-	public function Success() {
-		return isset($_REQUEST['success']) && $_REQUEST['success'] == "1";
-	}
-	
-	public function Error() {
-		return isset($_REQUEST['success']) && $_REQUEST['success'] == "0";
-	}
-	
 }
 
 class MailChimpSignupPage_Controller extends Page_Controller {
