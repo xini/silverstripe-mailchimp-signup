@@ -303,7 +303,7 @@ class MailChimpSignupPage_Controller extends Page_Controller {
                 "merge_fields" => $mergeVars,
                 "interests" => $aGroups,
             );
-            Debug::log(print_r($submissionData, true));
+//            Debug::log(print_r($submissionData, true));
             
             if (!$memberFound) {
                 
