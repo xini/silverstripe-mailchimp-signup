@@ -2,4 +2,4 @@ MailChimpSignupPage:
   singular_name: 'MailChimp Signup Form'
   plural_name: 'MailChimp Signup Forms'
   description: 'Signup form for a MailChimp mailing list.'
-  icon: 'mailchimp-signup/images/treeicons/mailchimp-subscribe.png'
+  icon: 'mailchimp-signup/images/treeicons/page-mailchimp.png'
