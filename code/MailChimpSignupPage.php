@@ -216,6 +216,10 @@ class MailChimpSignupPage_Controller extends Page_Controller {
             $js .= '}});});';
             Requirements::customScript($js, 'formvalidator');
         }
+        
+        if (class_exists('SpamProtectorManager')) {
+            $form->enableSpamProtection();
+        }
 
         return $form;
     }
