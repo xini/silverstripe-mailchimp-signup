@@ -226,6 +226,44 @@ class MailChimpSignupPage_Controller extends Page_Controller {
  
     public function subscribe($data, $form) {
         
+        $result = $this->doSubscription($data);
+        
+        if (isset($result['type']) && $result['type'] == 'good') {
+        
+            // clear session data
+            $aSessData = Session::get("FormInfo.".$form->FormName().".data");
+            if(is_array($aSessData)) {
+                Session::clear("FormInfo.".$form->FormName().".data");
+            }
+            
+            // redirect
+            return $this->redirect($this->join_links($this->Link(), 'success'));
+                
+        } else {
+
+            // Store the submitted data in case the user needs to try again
+            Session::set("FormInfo.".$form->FormName().".data", $data);
+            
+            // add error message
+            $form->addErrorMessage("Form_SubscribeForm_message", $result['message'], $result['type']);
+            
+            // redirect back
+            return $this->redirectBack();
+        }
+        
+    }
+    
+    public function success() {
+        return $this;
+    }
+    
+    public function doSubscription($data) {
+        
+        $returnData = array(
+            "type" => "error",
+            "message" => $this->ContentError,
+        );
+        
         //initialize
         $MailChimp = new MailChimp($this->APIKey);
         
@@ -234,28 +272,25 @@ class MailChimpSignupPage_Controller extends Page_Controller {
             $this->ListID,
             md5(strtolower($data['EMAIL']))
         ));
-//        Debug::log(print_r($memberInfo, true));
+        //        Debug::log(print_r($memberInfo, true));
         $memberFound = $MailChimp->success();
         
-        $sFeedbackType = "error";
-        $sFeedbackMsg = $this->ContentError;
-        
         if ($memberFound && $memberInfo && isset($memberInfo['status']) && $memberInfo['status'] == "subscribed") {
-
+        
             // The e-mail address has already subscribed, provide feedback
-            $sFeedbackType = "warning";
-            $sFeedbackMsg = _t("MailChimpSignupPage.DUPLICATE", "This email address is already subscribed to this list.");
-            
+            $returnData["type"] = "warning";
+            $returnData["message"] = _t("MailChimpSignupPage.DUPLICATE", "This email address is already subscribed to this list.");
+        
         } else {
-            
+        
             // gather member data for submission
-            
+        
             //get list data
             $mergeVars = array();
             $listInfo = $MailChimp->get(sprintf(
                 '/lists/%s/merge-fields',
                 $this->ListID
-            ));
+                ));
             if ($listInfo && isset($listInfo['merge_fields'])) {
                 $fielddata = $listInfo['merge_fields'];
                 foreach($fielddata as $field) {
@@ -265,13 +300,13 @@ class MailChimpSignupPage_Controller extends Page_Controller {
                     }
                 }
             }
-            
+        
             // same for groups
             $aGroups = array();
             $groupInfo = $MailChimp->get(sprintf(
                 '/lists/%s/interest-categories',
                 $this->ListID
-            ));
+                ));
             if ($groupInfo && isset($groupInfo['categories'])) {
                 foreach($groupInfo['categories'] as $group) {
                     // get options
@@ -279,7 +314,7 @@ class MailChimpSignupPage_Controller extends Page_Controller {
                         '/lists/%s/interest-categories/%s/interests',
                         $this->ListID,
                         $group['id']
-                    ));
+                        ));
 //                    Debug::log(print_r($groupOptions, true));
                     if ($groupOptions && isset($groupOptions['interests'])) {
                         // get submitted data
@@ -299,7 +334,7 @@ class MailChimpSignupPage_Controller extends Page_Controller {
                     }
                 }
             }
-            
+        
             // build submission data
             $submissionData = array(
                 "email_address" => $data['EMAIL'],
@@ -308,11 +343,11 @@ class MailChimpSignupPage_Controller extends Page_Controller {
                 "interests" => $aGroups,
             );
 //            Debug::log(print_r($submissionData, true));
-            
+        
             if (!$memberFound) {
-                
+        
                 // not on list, new subscription
-                
+        
                 $MailChimp->post(
                     sprintf(
                         '/lists/%s/members',
@@ -320,11 +355,11 @@ class MailChimpSignupPage_Controller extends Page_Controller {
                     ),
                     $submissionData
                 );
-                
+        
             } else {
-                
+        
                 // update existing record
-                
+        
                 $MailChimp->patch(
                     sprintf(
                         '/lists/%s/members/%s',
@@ -333,42 +368,24 @@ class MailChimpSignupPage_Controller extends Page_Controller {
                     ),
                     $submissionData
                 );
-                
+        
             }
-            
-            
+        
+        
             // check if update/adding successful
             if ($MailChimp->success()) {
-                
+        
                 // set message
-                $sFeedbackType = "good";
-                $sFeedbackMsg = $this->ContentSuccess;
-                
-                // clear session data
-                $aSessData = Session::get("FormInfo.".$form->FormName().".data");
-                if(is_array($aSessData)) {
-                    Session::clear("FormInfo.".$form->FormName().".data");
-                }
-                
-                return $this->redirect($this->join_links($this->Link(), 'success'));
-                
+                $returnData["type"] = "good";
+                $returnData["message"] = $this->ContentSuccess;
+        
             } else {
                 SS_Log::log(new Exception(print_r($MailChimp->getLastResponse(), true)), SS_Log::WARN);
             }
-            
-        }
-
-        // Store the submitted data in case the user needs to try again
-        Session::set("FormInfo.".$form->FormName().".data", $data);
-        // add error message
-        $form->addErrorMessage("Form_SubscribeForm_message", $sFeedbackMsg, $sFeedbackType);
-        // redirct back
-        return $this->redirectBack();
         
-    }
-    
-    public function success() {
-        return $this;
+        }
+        
+        return $returnData;
     }
     
     private function sortArray() {
