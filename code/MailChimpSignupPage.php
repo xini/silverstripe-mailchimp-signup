@@ -54,8 +54,8 @@ class MailChimpSignupPage_Controller extends Page_Controller {
     
     public function Form() {
         
-        if (!($this->APIKey)) { Debug::show('Please, set API key first in CMS'); return false; }
-        if (!($this->ListID)) { Debug::show('Please, set list id first in CMS'); return false; }
+        if (!($this->APIKey)) { Debug::show('Please set API key in CMS'); return false; }
+        if (!($this->ListID)) { Debug::show('Please set list id in CMS'); return false; }
         
         // validation requirements
         Requirements::javascript(THIRDPARTY_DIR.'/jquery/jquery.min.js');
@@ -87,6 +87,7 @@ class MailChimpSignupPage_Controller extends Page_Controller {
             
             // sort fields
             $sorteddata = $this->sortArray($fielddata, 'display_order', SORT_ASC);
+//            Debug::log(print_r($sorteddata, true));
             
             $emailAdded = false;
             
@@ -99,6 +100,7 @@ class MailChimpSignupPage_Controller extends Page_Controller {
                 // check if email needs to be added
                 if ($pos != $field['display_order'] && !$emailAdded) {
                     $fields->push( $newField = new EmailField('EMAIL', _t("MailChimpSignupPage.EmailAddress", 'Email Address'), null, 255));
+                    $emailAdded = true;
                 }
                 
                 if ($field['public']) {
