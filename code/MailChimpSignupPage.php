@@ -341,9 +341,13 @@ class MailChimpSignupPage_Controller extends Page_Controller {
             $submissionData = array(
                 "email_address" => $data['EMAIL'],
                 "status" => "pending",
-                "merge_fields" => $mergeVars,
-                "interests" => $aGroups,
             );
+            if (count($mergeVars)) {
+                $submissionData['merge_fields'] = $mergeVars;
+            }
+            if (count($aGroups)) {
+                $submissionData['interests'] = $aGroups;
+            }
 //            Debug::log(print_r($submissionData, true));
         
             if (!$memberFound) {
