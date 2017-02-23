@@ -78,9 +78,12 @@ class MailChimpSignupPage_Controller extends Page_Controller {
         
         // create field list and validator
         $fields = new FieldList();
-        $fields->push(new LiteralField('required', '<p class="info">'._t("MailChimpSignupPage.REQUIRED", 'Required fields are marked with an asterisk (*)').'</p>'));
+        
+        // create validator with default email field
         $validator = new RequiredFields('EMAIL');
-        $jsValidation = array();
+        $jsValidation = array('EMAIL');
+        
+        $emailAdded = false;
         
         if ($listInfo && isset($listInfo['merge_fields'])) {
             $fielddata = $listInfo['merge_fields'];
@@ -88,8 +91,6 @@ class MailChimpSignupPage_Controller extends Page_Controller {
             // sort fields
             $sorteddata = $this->sortArray($fielddata, 'display_order', SORT_ASC);
 //            Debug::log(print_r($sorteddata, true));
-            
-            $emailAdded = false;
             
             for ($pos = 1; $pos <= count($sorteddata); $pos++) {
                 
@@ -116,6 +117,9 @@ class MailChimpSignupPage_Controller extends Page_Controller {
                     
                         case 'text':
                             $fields->push( $newField = new TextField($field['tag'], $field['name'], $field['default_value'], 255));
+                            if ($field['tag'] == "EMAIL") {
+                                $emailAdded = true;
+                            }
                         break;
                                                 
                         case 'dropdown':
@@ -153,6 +157,11 @@ class MailChimpSignupPage_Controller extends Page_Controller {
                 $message .= ' ('.$listInfo['status'].': '.$listInfo['title'].': '.$listInfo['error'].')';
             }
             throw new Exception($message);
+        }
+        
+        // check again if email needs to be added
+        if (!$emailAdded) {
+            $fields->push( $newField = new EmailField('EMAIL', _t("MailChimpSignupPage.EmailAddress", 'Email Address'), null, 255));
         }
         
         if ($groupInfo && isset($groupInfo['categories'])) {
