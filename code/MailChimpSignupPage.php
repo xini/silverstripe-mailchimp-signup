@@ -156,7 +156,8 @@ class MailChimpSignupPage_Controller extends Page_Controller {
             if ($listInfo && isset($listInfo['status']) && isset($listInfo['error']) && isset($listInfo['title'])) {
                 $message .= ' ('.$listInfo['status'].': '.$listInfo['title'].': '.$listInfo['error'].')';
             }
-            throw new Exception($message);
+            SS_Log::log($message, SS_Log::WARN);
+            return null;
         }
         
         // check again if email needs to be added
