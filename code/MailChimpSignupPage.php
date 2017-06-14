@@ -57,10 +57,6 @@ class MailChimpSignupPage_Controller extends Page_Controller {
         if (!($this->APIKey)) { Debug::show('Please set API key in CMS'); return false; }
         if (!($this->ListID)) { Debug::show('Please set list id in CMS'); return false; }
         
-        // validation requirements
-        Requirements::javascript(THIRDPARTY_DIR.'/jquery/jquery.min.js');
-        Requirements::javascript(THIRDPARTY_DIR.'/jquery-validate/jquery.validate.min.js');
-        
         //initialize
         $MailChimp = new MailChimp($this->APIKey);
         $MailChimp->verify_ssl = Config::inst()->get('MailChimpSignupPage', 'verifiy_ssl');
@@ -222,6 +218,7 @@ class MailChimpSignupPage_Controller extends Page_Controller {
         );
 
         $form = new Form($this, 'Form', $fields, $actions, $validator);
+        $form = $form->setHTMLID('mailchimp-signup-form');
 
         // Retrieve potentially saved data and populate form fields if values were present in session variables
         $data = Session::get("FormInfo.".$form->FormName().".data");
@@ -230,13 +227,19 @@ class MailChimpSignupPage_Controller extends Page_Controller {
         }
 
         if (count($jsValidation) > 0 ) {
-            $js = 'jQuery(document).ready(function() { $("#'.$form->FormName().'").validate({ rules: {';
+            // set validation rules
+            $js = 'var mailchimp_validation_options = { rules: {';
             foreach ($jsValidation as $field) {
-                $js .= $field.': { required: true },';
+                $js .= '"'.$field.'": { required: true },';
             }
             $js = rtrim($js, ",");
-            $js .= '}});});';
+            $js .= '}};';
             Requirements::customScript($js, 'formvalidator');
+            // load validator
+            Requirements::javascript(THIRDPARTY_DIR.'/jquery/jquery.min.js');
+            Requirements::javascript('mailchimp-signup/thirdparty/jquery-validate/jquery.validate.min.js');
+            // load validation script
+            Requirements::javascript('mailchimp-signup/javascript/mailchimp-validation.js');
         }
         
         if (class_exists('SpamProtectorManager')) {
