@@ -63,6 +63,7 @@ class MailChimpSignupPage_Controller extends Page_Controller {
         
         //initialize
         $MailChimp = new MailChimp($this->APIKey);
+        $MailChimp->verify_ssl = Config::inst()->get('MailChimpSignupPage', 'verifiy_ssl');
         
         // Get list data
         $listInfo = $MailChimp->get(sprintf(
@@ -155,6 +156,15 @@ class MailChimpSignupPage_Controller extends Page_Controller {
             $message = "Form fields could not be loaded.";
             if ($listInfo && isset($listInfo['status']) && isset($listInfo['error']) && isset($listInfo['title'])) {
                 $message .= ' ('.$listInfo['status'].': '.$listInfo['title'].': '.$listInfo['error'].')';
+            }
+            if ($MailChimp->getLastError()) {
+                $message .= ' (last error: '.$MailChimp->getLastError().')';
+            }
+            if ($MailChimp->getLastResponse()) {
+                $message .= ' (last response: '.print_r($MailChimp->getLastResponse(), true).')';
+            }
+            if ($MailChimp->getLastRequest()) {
+                $message .= ' (last reguest: '.print_r($MailChimp->getLastRequest(), true).')';
             }
             SS_Log::log($message, SS_Log::WARN);
             return null;
