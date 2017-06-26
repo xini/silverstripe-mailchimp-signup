@@ -113,6 +113,12 @@ class MailChimpSignupPage_Controller extends Page_Controller {
                     switch ($field['type']) {
                     
                         case 'text':
+                        case 'number':
+                        case 'date':
+                        case 'birthday':
+                        case 'address':
+                        case 'phone':
+                        case 'url':
                             $fields->push( $newField = new TextField($field['tag'], $field['name'], $field['default_value'], 255));
                             if ($field['tag'] == "EMAIL") {
                                 $emailAdded = true;
