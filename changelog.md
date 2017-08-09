@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [2.4.1]
+
+* fix typo in verify_ssl config
+* fix API urls
+* fix form error message
+* fix js validation
+* update readme
+
 ## [2.4.0]
 
 * public release

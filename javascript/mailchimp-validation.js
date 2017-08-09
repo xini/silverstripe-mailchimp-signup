@@ -1,6 +1,6 @@
 (function($) {
 	$(document).ready(function() {
-		if (mailchimp_validation_options) {
+		if (typeof mailchimp_validation_options !== 'undefined') {
 			$('#mailchimp-signup-form').validate(
 				mailchimp_validation_options
 			);

@@ -3,4 +3,4 @@ MailChimpSignupPage:
   plural_name: 'MailChimp Signup Forms'
   description: 'Signup form for a MailChimp mailing list.'
   icon: 'mailchimp-signup/images/treeicons/page-mailchimp.png'
-  verifiy_ssl: true
+  verify_ssl: true

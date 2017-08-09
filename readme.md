@@ -7,6 +7,8 @@
 
 Adds page type for a MailChimp signup form. Form fields are read automatically from the MailChimp list.
 
+The submissions need to be confirmed by the user, they receives a confirmation email from MailChimp.
+
 ## Requirements
 
 * SilverStripe CMS ~3.2
@@ -25,9 +27,13 @@ Then run dev/build.
 
 The page type this module adds has a 'MailChimp' tab where the MailChimp API Key and the ListID can be configured. 
 
-Once the page is saved it will automatically ready the fields from the MailChimp list and diesplay a generated signup form based on these fields. 
+Once the page is saved it will automatically read the fields from the MailChimp list and display a generated signup form based on these fields. 
 
-The submissions need to be confirmed by the user, they receives a confirmation email from MailChimp.
+To disable SSL verfication (e.g. for your local dev environment) you can add the following to your `_config.php` file:
+
+```
+Config::inst()->update('MailChimpSignupPage', 'verify_ssl', false);
+```
 
 ## License
 

@@ -59,15 +59,15 @@ class MailChimpSignupPage_Controller extends Page_Controller {
         
         //initialize
         $MailChimp = new MailChimp($this->APIKey);
-        $MailChimp->verify_ssl = Config::inst()->get('MailChimpSignupPage', 'verifiy_ssl');
+        $MailChimp->verify_ssl = Config::inst()->get('MailChimpSignupPage', 'verify_ssl');
         
         // Get list data
         $listInfo = $MailChimp->get(sprintf(
-            '/lists/%s/merge-fields', 
+            'lists/%s/merge-fields', 
             $this->ListID
         ));
         $groupInfo = $MailChimp->get(sprintf(
-            '/lists/%s/interest-categories',
+            'lists/%s/interest-categories',
             $this->ListID
         ));
 //        Debug::log(print_r($listInfo, true));
@@ -183,7 +183,7 @@ class MailChimpSignupPage_Controller extends Page_Controller {
                 // get options
                 $options = array();
                 $groupOptions = $MailChimp->get(sprintf(
-                    '/lists/%s/interest-categories/%s/interests', 
+                    'lists/%s/interest-categories/%s/interests', 
                     $this->ListID,
                     $group['id']
                 ));
@@ -249,7 +249,7 @@ class MailChimpSignupPage_Controller extends Page_Controller {
         }
         
         if (class_exists('SpamProtectorManager')) {
-            $form->enableSpamProtection();
+            $form = $form->enableSpamProtection();
         }
 
         return $form;
@@ -276,7 +276,7 @@ class MailChimpSignupPage_Controller extends Page_Controller {
             Session::set("FormInfo.".$form->FormName().".data", $data);
             
             // add error message
-            $form->addErrorMessage("Form_SubscribeForm_message", $result['message'], $result['type']);
+            $form->sessionMessage($result['message'], $result['type']);
             
             // redirect back
             return $this->redirectBack();
@@ -297,13 +297,14 @@ class MailChimpSignupPage_Controller extends Page_Controller {
         
         //initialize
         $MailChimp = new MailChimp($this->APIKey);
+        $MailChimp->verify_ssl = Config::inst()->get('MailChimpSignupPage', 'verify_ssl');
         
         $memberInfo = $MailChimp->get(sprintf(
-            '/lists/%s/members/%s',
+            'lists/%s/members/%s',
             $this->ListID,
             md5(strtolower($data['EMAIL']))
         ));
-        //        Debug::log(print_r($memberInfo, true));
+//        Debug::log(print_r($memberInfo, true));
         $memberFound = $MailChimp->success();
         
         if ($memberFound && $memberInfo && isset($memberInfo['status']) && $memberInfo['status'] == "subscribed") {
@@ -319,9 +320,9 @@ class MailChimpSignupPage_Controller extends Page_Controller {
             //get list data
             $mergeVars = array();
             $listInfo = $MailChimp->get(sprintf(
-                '/lists/%s/merge-fields',
+                'lists/%s/merge-fields',
                 $this->ListID
-                ));
+            ));
             if ($listInfo && isset($listInfo['merge_fields'])) {
                 $fielddata = $listInfo['merge_fields'];
                 foreach($fielddata as $field) {
@@ -335,14 +336,14 @@ class MailChimpSignupPage_Controller extends Page_Controller {
             // same for groups
             $aGroups = array();
             $groupInfo = $MailChimp->get(sprintf(
-                '/lists/%s/interest-categories',
+                'lists/%s/interest-categories',
                 $this->ListID
-                ));
+            ));
             if ($groupInfo && isset($groupInfo['categories'])) {
                 foreach($groupInfo['categories'] as $group) {
                     // get options
                     $groupOptions = $MailChimp->get(sprintf(
-                        '/lists/%s/interest-categories/%s/interests',
+                        'lists/%s/interest-categories/%s/interests',
                         $this->ListID,
                         $group['id']
                         ));
@@ -385,7 +386,7 @@ class MailChimpSignupPage_Controller extends Page_Controller {
         
                 $MailChimp->post(
                     sprintf(
-                        '/lists/%s/members',
+                        'lists/%s/members',
                         $this->ListID
                     ),
                     $submissionData
@@ -397,7 +398,7 @@ class MailChimpSignupPage_Controller extends Page_Controller {
         
                 $MailChimp->patch(
                     sprintf(
-                        '/lists/%s/members/%s',
+                        'lists/%s/members/%s',
                         $this->ListID,
                         md5(strtolower($data['EMAIL']))
                     ),
@@ -415,7 +416,9 @@ class MailChimpSignupPage_Controller extends Page_Controller {
                 $returnData["message"] = $this->ContentSuccess;
         
             } else {
-                SS_Log::log(new Exception(print_r($MailChimp->getLastResponse(), true)), SS_Log::WARN);
+                SS_Log::log(new Exception('Last Error: '.print_r($MailChimp->getLastError(), true)), SS_Log::WARN);
+                SS_Log::log(new Exception('Last Request: '.print_r($MailChimp->getLastRequest(), true)), SS_Log::WARN);
+                SS_Log::log(new Exception('Last Response: '.print_r($MailChimp->getLastResponse(), true)), SS_Log::WARN);
             }
         
         }
