@@ -2,6 +2,7 @@
 	"name": "innoweb/silverstripe-mailchimp-signup",
 	"description": "Adds page type for a MailChimp signup form. Form fields are read automatically from the MailChimp list.",
 	"type": "silverstripe-module",
+	"license": "BSD-3-Clause",
 	"keywords": ["silverstripe", "mailchimp", "newsletter", "signup"],
 	"authors": [{
 		"name": "Florian Thoma",
@@ -9,8 +10,8 @@
 	}],
 	"require":
 	{
-		"silverstripe/framework": "~3.1",
-		"silverstripe/cms": "~3.1",
+		"silverstripe/framework": "~3.2",
+		"silverstripe/cms": "~3.2",
 		"drewm/mailchimp-api": "~2.0"
 	},
 	"extra": {
