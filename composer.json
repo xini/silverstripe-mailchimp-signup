@@ -12,7 +12,8 @@
 	{
 		"silverstripe/framework": "~3.2",
 		"silverstripe/cms": "~3.2",
-		"drewm/mailchimp-api": "~2.0"
+		"drewm/mailchimp-api": "~2.0",
+		"symbiote/silverstripe-multivaluefield": "~2.0"
 	},
 	"extra": {
 		"installer-name": "mailchimp-signup"

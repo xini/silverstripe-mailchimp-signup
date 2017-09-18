@@ -12,6 +12,8 @@ The submissions need to be confirmed by the user, they receives a confirmation e
 ## Requirements
 
 * SilverStripe CMS ~3.2
+* [symbiote/silverstripe-multivaluefield ~2.0](https://packagist.org/packages/symbiote/silverstripe-multivaluefield)
+* [drewm/mailchimp-api ~2.0](https://packagist.org/packages/drewm/mailchimp-api)
 
 ## Installation
 
@@ -25,15 +27,32 @@ Then run dev/build.
 
 ## Configuration
 
-The page type this module adds has a 'MailChimp' tab where the MailChimp API Key and the ListID can be configured. 
-
-Once the page is saved it will automatically read the fields from the MailChimp list and display a generated signup form based on these fields. 
-
 To disable SSL verfication (e.g. for your local dev environment) you can add the following to your `_config.php` file:
 
 ```
-Config::inst()->update('MailChimpSignupPage', 'verify_ssl', false);
+Config::inst()->update('MailChimp', 'verify_ssl', false);
 ```
+
+### MailChimpSignupPage
+
+The page type has a 'MailChimp' tab where the MailChimp API Key and the ListID can be configured. 
+
+Once the page is saved it will automatically read the fields from the MailChimp list and display a generated signup form based on these fields.
+
+### MailChimpCampaignListPage 
+
+The page type has a 'MailChimp' tab where the MailChimp API Key, as well as the campaign filters and limitscan be configured.
+
+The following configuration options are available:
+
+```
+MailChimpCampaignListPage:
+  auto_update: true
+  update_interval: 3600
+```
+
+If `auto_update` is enabled, the campaigns are read from MailChimp when the page is displayed, using the `update_interval` (seconds) as a limit.
+The campaigns are always updated when the page is saved.
 
 ## License
 

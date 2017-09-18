@@ -3,14 +3,19 @@ use DrewM\MailChimp\MailChimp;
 
 class MailChimpSignupPage extends Page {
     
-    static $db = array(
+    private static $singular_name = "MailChimp Signup Form";
+    private static $plural_name = "MailChimp Signup Forms";
+    private static $description = "Signup form for a MailChimp mailing list.";
+    private static $icon = "mailchimp-signup/images/treeicons/page-mailchimp.png";
+    
+    private static $db = array(
         'APIKey' => 'Varchar(255)',
         'ListID' => 'Varchar(255)',
         'ContentSuccess' => 'Text',
         'ContentError' => 'Text'
     );
     
-    static $defaults = array(
+    private static $defaults = array(
         'ShowInMenus' => true,
         'ShowInSearch' => true,
         'ProvideComments' => false,
@@ -19,7 +24,7 @@ class MailChimpSignupPage extends Page {
         'ContentError' => 'Unfortunately an error occurred during your subscription. Please try again.'
     );
     
-    function getCMSFields() {
+    public function getCMSFields() {
         
         $fields = parent::getCMSFields();
 
@@ -59,7 +64,7 @@ class MailChimpSignupPage_Controller extends Page_Controller {
         
         //initialize
         $MailChimp = new MailChimp($this->APIKey);
-        $MailChimp->verify_ssl = Config::inst()->get('MailChimpSignupPage', 'verify_ssl');
+        $MailChimp->verify_ssl = Config::inst()->get('MailChimp', 'verify_ssl');
         
         // Get list data
         $listInfo = $MailChimp->get(sprintf(
@@ -297,7 +302,7 @@ class MailChimpSignupPage_Controller extends Page_Controller {
         
         //initialize
         $MailChimp = new MailChimp($this->APIKey);
-        $MailChimp->verify_ssl = Config::inst()->get('MailChimpSignupPage', 'verify_ssl');
+        $MailChimp->verify_ssl = Config::inst()->get('MailChimp', 'verify_ssl');
         
         $memberInfo = $MailChimp->get(sprintf(
             'lists/%s/members/%s',

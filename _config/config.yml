@@ -1,0 +1,6 @@
+MailChimp:
+  verify_ssl: true
+
+MailChimpCampaignListPage:
+  auto_update: true
+  update_interval: 3600
