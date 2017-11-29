@@ -259,8 +259,9 @@ class MailChimpCampaignListPage_Controller extends Page_Controller {
             'Hidden' => false,
             'PageID' => $page->ID,
         );
-        if ($page->ListIDs && is_array($page->ListIDs) && count($page->ListIDs) > 0) {
-            $filter['ListID'] = $page->ListIDs;
+        $listIDs = $page->dbObject('ListIDs')->getValue();
+        if ($listIDs && is_array($listIDs) && count($listIDs) > 0) {
+            $filter['ListID'] = $listIDs;
         }
         if ($page->HideSentToSegments) {
             $filter['SentToSegment'] = false;
