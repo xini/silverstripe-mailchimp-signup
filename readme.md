@@ -11,9 +11,11 @@ The submissions need to be confirmed by the user, they receives a confirmation e
 
 ## Requirements
 
-* SilverStripe CMS ~3.2
-* [symbiote/silverstripe-multivaluefield ~2.0](https://packagist.org/packages/symbiote/silverstripe-multivaluefield)
+* SilverStripe CMS 4.x
+* [symbiote/silverstripe-multivaluefield ^4,^5](https://packagist.org/packages/symbiote/silverstripe-multivaluefield)
 * [drewm/mailchimp-api ~2.0](https://packagist.org/packages/drewm/mailchimp-api)
+
+Note: this version is compatible with SilverStripe 4. For SilverStripe 3, please see the [3.x release line](https://github.com/xini/silverstripe-mailchimp-signup/tree/3.0.2).
 
 ## Installation
 
@@ -30,7 +32,7 @@ Then run dev/build.
 To disable SSL verfication (e.g. for your local dev environment) you can add the following to your `_config.php` file:
 
 ```
-Config::inst()->update('MailChimp', 'verify_ssl', false);
+Config::inst()->update('DrewM\MailChimp\MailChimp', 'verify_ssl', false);
 ```
 
 ### MailChimpSignupPage
@@ -46,7 +48,7 @@ The page type has a 'MailChimp' tab where the MailChimp API Key, as well as the 
 The following configuration options are available:
 
 ```
-MailChimpCampaignListPage:
+Innoweb\MailChimpSignup\Model\CampaignListPage:
   auto_update: true
   update_interval: 3600
 ```
