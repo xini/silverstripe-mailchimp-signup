@@ -19,7 +19,6 @@
 		}
 	},
 	"extra": {
-		"installer-name": "mailchimp-signup",
 		"expose": [
 			"client/dist",
 			"client/thirdparty",
