@@ -1,37 +1,38 @@
 {
 	"name": "innoweb/silverstripe-mailchimp-signup",
 	"description": "Adds page type for a MailChimp signup form. Form fields are read automatically from the MailChimp list.",
+	"type": "silverstripe-vendormodule",
 	"license": "BSD-3-Clause",
 	"keywords": ["silverstripe", "mailchimp", "newsletter", "signup"],
 	"authors": [{
 		"name": "Florian Thoma",
 		"homepage": "http://www.innoweb.com.au"
 	}],
-  "type": "silverstripe-vendormodule",
-  "prefer-stable": true,
-  "minimum-stability": "dev",
-  "require": {
-    "silverstripe/cms": "^4",
-    "drewm/mailchimp-api": "~2.0",
-    "symbiote/silverstripe-multivaluefield": "^4 || ^5"
-  },
-  "autoload": {
-    "psr-4": {
-      "Innoweb\\MailChimpSignup\\": "src/"
-    }
-  },
-  "extra": {
-    "expose": [
-      "client/dist",
-      "client/thirdparty",
-      "client/images"
-    ],
-    "branch-alias": {
-      "dev-master": "4.0.x-dev"
-    }
-  },
-  "config": {
-    "vendor-dir": "vendor",
-    "process-timeout": 600
-  }
+	"require": {
+		"silverstripe/cms": "^4",
+		"drewm/mailchimp-api": "~2.0",
+		"symbiote/silverstripe-multivaluefield": "^4 || ^5"
+	},
+	"autoload": {
+		"psr-4": {
+			"Innoweb\\MailChimpSignup\\": "src/"
+		}
+	},
+	"extra": {
+		"installer-name": "mailchimp-signup",
+		"expose": [
+			"client/dist",
+			"client/thirdparty",
+			"client/images"
+		],
+		"branch-alias": {
+			"dev-master": "4.0.x-dev"
+		}
+	},
+	"config": {
+		"vendor-dir": "vendor",
+		"process-timeout": 600
+	},
+	"prefer-stable": true,
+	"minimum-stability": "dev"	
 }
