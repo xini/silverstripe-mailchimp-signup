@@ -32,9 +32,6 @@
   },
   "config": {
     "vendor-dir": "vendor",
-    "process-timeout": 600,
-    "github-oauth": {
-      "github.com": "1de00b6e3a067531098f2fe7d08b598540f90daa"
-    }
+    "process-timeout": 600
   }
 }
