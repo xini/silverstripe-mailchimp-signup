@@ -1,64 +1,98 @@
 <?php
 
-class MailChimpSignupPage_Controller extends Page_Controller {
+namespace Innoweb\MailChimpSignup\Pages;
 
-    private static $allowed_actions = array(
+use DrewM\MailChimp\MailChimp;
+use SilverStripe\Core\Config\Config;
+use SilverStripe\Dev\Debug;
+use SilverStripe\Forms\CheckboxSetField;
+use SilverStripe\Forms\DropdownField;
+use SilverStripe\Forms\EmailField;
+use SilverStripe\Forms\FieldList;
+use SilverStripe\Forms\Form;
+use SilverStripe\Forms\FormAction;
+use SilverStripe\Forms\LiteralField;
+use SilverStripe\Forms\OptionsetField;
+use SilverStripe\Forms\RequiredFields;
+use SilverStripe\Forms\TextField;
+use SilverStripe\View\Requirements;
+use PageController;
+
+class SignupPageController extends \PageController {
+
+    private static $allowed_actions = [
         'Form',
-        'success',
-    );
+        'success'
+    ];
 
-    public function Form() {
+    private static $dependencies = [
+        'logger'    =>  '%$Psr\Log\LoggerInterface'
+    ];
 
-        if (!($this->APIKey)) { Debug::show('Please set API key in CMS'); return false; }
-        if (!($this->ListID)) { Debug::show('Please set list id in CMS'); return false; }
+    public $logger;
 
-        //initialize
-        $MailChimp = new MailChimp($this->APIKey);
-        $MailChimp->verify_ssl = Config::inst()->get('MailChimp', 'verify_ssl');
+    public function Form()
+    {
+        if (!($this->APIKey)) {
+            Debug::show('Please set API key in CMS');
+            return false;
+        }
+
+        if (!($this->ListID)) {
+            Debug::show('Please set list id in CMS');
+            return false;
+        }
+
+        // initialize
+        $mailChimp = new MailChimp($this->APIKey);
+        $mailChimp->verify_ssl = Config::inst()->get(MailChimp::class, 'verify_ssl');
 
         // Get list data
-        $listInfo = $MailChimp->get(sprintf(
+        $listInfo = $mailChimp->get(sprintf(
             'lists/%s/merge-fields',
             $this->ListID
         ));
-        $groupInfo = $MailChimp->get(sprintf(
+        $groupInfo = $mailChimp->get(sprintf(
             'lists/%s/interest-categories',
             $this->ListID
         ));
-//        Debug::log(print_r($listInfo, true));
-//        Debug::log(print_r($groupInfo, true));
 
         // create field list and validator
-        $fields = new FieldList();
+        $fields = FieldList::create();
 
         // create validator with default email field
-        $validator = new RequiredFields('EMAIL');
-        $jsValidation = array('EMAIL');
+        $validator = RequiredFields::create('EMAIL');
+        $jsValidation = ['EMAIL'];
 
         $emailAdded = false;
 
         if ($listInfo && isset($listInfo['merge_fields'])) {
-            $fielddata = $listInfo['merge_fields'];
+            $fieldData = $listInfo['merge_fields'];
 
             // sort fields
-            $sorteddata = $this->sortArray($fielddata, 'display_order', SORT_ASC);
-//            Debug::log(print_r($sorteddata, true));
+            $sortedData = $this->sortArray($fieldData, 'display_order', SORT_ASC);
 
-            for ($pos = 1; $pos <= count($sorteddata); $pos++) {
+            for ($pos = 1; $pos <= count($sortedData); $pos++) {
 
                 // get field data
-                $field = $sorteddata[$pos-1];
+                $field = $sortedData[$pos-1];
                 $newField = null;
 
                 // check if email needs to be added
                 if ($pos != $field['display_order'] && !$emailAdded) {
-                    $fields->push( $newField = new EmailField('EMAIL', _t("MailChimpSignupPage.EmailAddress", 'Email Address'), null, 255));
+                    $newField = EmailField::create(
+                        'EMAIL',
+                        _t('Innoweb\\MailChimpSignup\\Model\\SignupPage.EmailAddress', 'Email Address'),
+                        null,
+                        255
+                    );
+                    $fields->push($newField);
                     $emailAdded = true;
                 }
 
                 if ($field['public']) {
 
-                    //add field validation
+                    // add field validation
                     if ($field['required']) {
                         $validator->addRequiredField($field['tag']);
                         $jsValidation[] = $field['tag'];
@@ -74,75 +108,106 @@ class MailChimpSignupPage_Controller extends Page_Controller {
                         case 'address':
                         case 'phone':
                         case 'url':
-                            $fields->push( $newField = new TextField($field['tag'], $field['name'], $field['default_value'], 255));
-                            if ($field['tag'] == "EMAIL") {
-                                $emailAdded = true;
-                            }
+                            $newField = TextField::create(
+                                $field['tag'],
+                                $field['name'],
+                                $field['default_value'],
+                                255
+                            );
                             break;
 
                         case 'dropdown':
 
-                            //set value and key to value
-                            $optionSet = array();
-                            foreach($field['choices'] as $opt) { $optionSet[$opt] = $opt; }
-
-                            $fields->push( $newField = new DropdownField($field['tag'], $field['name'], $optionSet) );
+                            // set value and key to value
+                            $optionSet = [];
+                            foreach ($field['choices'] as $opt) {
+                                $optionSet[$opt] = $opt;
+                            }
+                            $newField = DropdownField::create(
+                                $field['tag'],
+                                $field['name'],
+                                $optionSet
+                            );
                             break;
 
                         case 'radio':
 
-                            //set value and key to value
-                            $optionSet = array();
-                            foreach($field['choices'] as $opt) { $optionSet[$opt] = $opt; }
-
-                            $fields->push( $newField = new OptionsetField($field['tag'], $field['name'], $optionSet) );
+                            // set value and key to value
+                            $optionSet = [];
+                            foreach ($fields['choices'] as $opt) {
+                                $optionSet[$opt] = $opt;
+                            }
+                            $newField = OptionsetField::create(
+                                $field['tag'],
+                                $field['name'],
+                                $optionSet
+                            );
                             break;
 
-
                         default:
-                            $fields->push( $newField = new LiteralField($field['tag'], 'ERROR: UNSUPPORTED FIELDTYPE ('.$field['type'].') -> ' . $field['tag'] .' '. $field['name']));
+                            $newField = LiteralField::create(
+                                $field['tag'],
+                                'ERROR: UNSUPPORTED FIELDTYPE ('
+                                . $field['type']
+                                . ') -> '
+                                . $field['tag']
+                                . ' '
+                                . $field['name']
+                            );
                     }
 
+                    $fields->push($newField);
+
+                    if ($field['tag'] == 'EMAIL') {
+                        $emailAdded = true;
+                    }
+
+                    // add description to field
+                    if ($field['help_text']) {
+                        $newField->setRightTitle($field['help_text']);
+                    }
                 }
-
-                //add description to field
-                if (isset($newField) && $field['help_text']) {$newField->setRightTitle($field['help_text']);}
-
             }
         } else {
             $message = "Form fields could not be loaded.";
             if ($listInfo && isset($listInfo['status']) && isset($listInfo['error']) && isset($listInfo['title'])) {
                 $message .= ' ('.$listInfo['status'].': '.$listInfo['title'].': '.$listInfo['error'].')';
             }
-            if ($MailChimp->getLastError()) {
-                $message .= ' (last error: '.$MailChimp->getLastError().')';
+            if ($mailChimp->getLastError()) {
+                $message .= ' (last error: '.$mailChimp->getLastError().')';
             }
-            if ($MailChimp->getLastResponse()) {
-                $message .= ' (last response: '.print_r($MailChimp->getLastResponse(), true).')';
+            if ($mailChimp->getLastResponse()) {
+                $message .= ' (last response: '.print_r($mailChimp->getLastResponse(), true).')';
             }
-            if ($MailChimp->getLastRequest()) {
-                $message .= ' (last reguest: '.print_r($MailChimp->getLastRequest(), true).')';
+            if ($mailChimp->getLastRequest()) {
+                $message .= ' (last reguest: '.print_r($mailChimp->getLastRequest(), true).')';
             }
-            SS_Log::log($message, SS_Log::WARN);
+            $this->logger->warning($message);
             return null;
         }
 
         // check again if email needs to be added
         if (!$emailAdded) {
-            $fields->push( $newField = new EmailField('EMAIL', _t("MailChimpSignupPage.EmailAddress", 'Email Address'), null, 255));
+            $newField = EmailField::create(
+                'EMAIL',
+                _t('Innoweb\\MailChimpSignup\\Model\\SignupPage.EmailAddress', 'Email Address'),
+                null,
+                255
+            );
+            $fields->push($newField);
         }
 
         if ($groupInfo && isset($groupInfo['categories'])) {
-            foreach($groupInfo['categories'] as $group) {
+            foreach ($groupInfo['categories'] as $group) {
 
                 // get options
-                $options = array();
-                $groupOptions = $MailChimp->get(sprintf(
+                $options = [];
+                $groupOptions = $mailChimp->get(sprintf(
                     'lists/%s/interest-categories/%s/interests',
                     $this->ListID,
                     $group['id']
                 ));
-//                Debug::log(print_r($groupOptions, true));
+
                 if ($groupOptions && isset($groupOptions['interests'])) {
                     $sortedOptions = $this->sortArray($groupOptions['interests'], 'display_order', SORT_ASC);
                     foreach ($sortedOptions as $option) {
@@ -153,15 +218,33 @@ class MailChimpSignupPage_Controller extends Page_Controller {
                 // add field
                 switch ($group['type']) {
                     case 'radio':
-                        $fields->push( new OptionsetField('groupings_'.$group['id'], $group['title'], $options) );
+                        $fields->push(
+                            OptionsetField::create(
+                                'groupings_'.$group['id'],
+                                $group['title'],
+                                $options
+                            )
+                        );
                         break;
 
                     case 'checkboxes':
-                        $fields->push( new CheckboxSetField('groupings_'.$group['id'], $group['title'], $options) );
+                        $fields->push(
+                            CheckboxSetField::create(
+                                'groupings_'.$group['id'],
+                                $group['title'],
+                                $options
+                            )
+                        );
                         break;
 
                     case 'dropdown':
-                        $fields->push( new DropdownField('groupings_'.$group['id'], $group['title'], $options) );
+                        $fields->push(
+                            DropdownField::create(
+                                'groupings_'.$group['id'],
+                                $group['title'],
+                                $options
+                            )
+                        );
                         break;
 
                     case 'hidden':
@@ -169,38 +252,57 @@ class MailChimpSignupPage_Controller extends Page_Controller {
                         break;
 
                     default:
-                        $fields->push( new LiteralField($group['id'], 'ERROR: UNSUPPORTED GROUP TYPE ('.$group['form_field'].') -> ' . $group['id'] .' '. $group['title']));
+                        $fields->push(
+                            LiteralField::create(
+                                $group['id'],
+                                'ERROR: UNSUPPORTED GROUP TYPE ('
+                                . $group['form_field']
+                                . ') -> '
+                                . $group['id']
+                                . ' '
+                                . $group['title']
+                            )
+                        );
                 }
             }
         }
 
-        $actions = new FieldList(
-            new FormAction('subscribe', _t("MailChimpSignupPage.SUBSCRIBE", 'subscribe'))
+        $actions = FieldList::create(
+            FormAction::create('subscribe', _t('Innoweb\\MailChimpSignup\\Model\\SignupPage.SUBSCRIBE', 'subscribe'))
         );
 
-        $form = new Form($this, 'Form', $fields, $actions, $validator);
-        $form = $form->setHTMLID('mailchimp-signup-form');
+        $form = Form::create(
+            $this,
+            'Form',
+            $fields,
+            $actions,
+            $validator
+        );
 
-        // Retrieve potentially saved data and populate form fields if values were present in session variables
-        $data = Session::get("FormInfo.".$form->FormName().".data");
-        if(is_array($data)) {
-            $form->loadDataFrom($data);
+        $form->setHTMLID('mailchimp-signup-form');
+
+        // Retrieve potentially saved data and populate form field if values were present in session variables
+        $session = $this->getRequest()->getSession();
+        $sessionData = $session->get('FormInfo.' . $form->FormName() . '.data');
+        if (is_array($sessionData)) {
+            $form->loadDataFrom($sessionData);
         }
 
-        if (count($jsValidation) > 0 ) {
+        if (count($jsValidation) > 0) {
             // set validation rules
             $js = 'var mailchimp_validation_options = { rules: {';
             foreach ($jsValidation as $field) {
-                $js .= '"'.$field.'": { required: true },';
+                $js .= '"' . $field . '": { required: true },';
             }
-            $js = rtrim($js, ",");
+            $js = rtrim($js, ',');
             $js .= '}};';
+
             Requirements::customScript($js, 'formvalidator');
             // load validator
-            Requirements::javascript(THIRDPARTY_DIR.'/jquery/jquery.min.js');
-            Requirements::javascript('mailchimp-signup/thirdparty/jquery-validate/jquery.validate.min.js');
+            Requirements::javascript('silverstripe/admin: thirdparty/jquery/jquery.js');
+            Requirements::javascript('innoweb/silverstripe-mailchimp-signup: client/thirdparty/jquery-validate/jquery.validate.min.js');
             // load validation script
-            Requirements::javascript('mailchimp-signup/javascript/mailchimp-validation.js');
+            Requirements::javascript('innoweb/silverstripe-mailchimp-signup: client/dist/javascript/mailchimp-validation.min.js');
         }
 
         if (class_exists('SpamProtectorManager')) {
@@ -210,16 +312,17 @@ class MailChimpSignupPage_Controller extends Page_Controller {
         return $form;
     }
 
-    public function subscribe($data, $form) {
-
+    public function subscribe($data, $form)
+    {
         $result = $this->doSubscription($data);
+        $session = $this->getRequest()->getSession();
 
         if (isset($result['type']) && $result['type'] == 'good') {
 
             // clear session data
-            $aSessData = Session::get("FormInfo.".$form->FormName().".data");
-            if(is_array($aSessData)) {
-                Session::clear("FormInfo.".$form->FormName().".data");
+            $sessionData = $session->get('FormInfo.' . $form->FormName() . '.data');
+            if (is_array($sessionData)) {
+                $session->clear('FormInfo.' . $form->FormName() . '.data');
             }
 
             // redirect
@@ -228,7 +331,7 @@ class MailChimpSignupPage_Controller extends Page_Controller {
         } else {
 
             // Store the submitted data in case the user needs to try again
-            Session::set("FormInfo.".$form->FormName().".data", $data);
+            $session->set('FormInfo.' . $form->FormName() . '.data', $data);
 
             // add error message
             $form->sessionMessage($result['message'], $result['type']);
@@ -236,83 +339,87 @@ class MailChimpSignupPage_Controller extends Page_Controller {
             // redirect back
             return $this->redirectBack();
         }
-
     }
 
-    public function success() {
+    public function success()
+    {
         return $this;
     }
 
-    public function doSubscription($data) {
+    public function doSubscription($data)
+    {
+        $returnData = [
+            'type'      =>  'error',
+            'message'   =>  $this->ContentError
+        ];
 
-        $returnData = array(
-            "type" => "error",
-            "message" => $this->ContentError,
-        );
+        // initialize
+        $mailChimp = new MailChimp($this->APIKey);
+        $mailChimp->verify_ssl = Config::inst()->get(MailChimp::class, 'verify_ssl');
 
-        //initialize
-        $MailChimp = new MailChimp($this->APIKey);
-        $MailChimp->verify_ssl = Config::inst()->get('MailChimp', 'verify_ssl');
-
-        $memberInfo = $MailChimp->get(sprintf(
+        $memberInfo = $mailChimp->get(sprintf(
             'lists/%s/members/%s',
             $this->ListID,
             md5(strtolower($data['EMAIL']))
         ));
-//        Debug::log(print_r($memberInfo, true));
-        $memberFound = $MailChimp->success();
+        $memberFound = $mailChimp->success();
 
-        if ($memberFound && $memberInfo && isset($memberInfo['status']) && $memberInfo['status'] == "subscribed") {
+        if ($memberFound && $memberInfo && isset($memberInfo['status']) && $memberInfo['status'] == 'subscribed') {
 
             // The e-mail address has already subscribed, provide feedback
-            $returnData["type"] = "warning";
-            $returnData["message"] = _t("MailChimpSignupPage.DUPLICATE", "This email address is already subscribed to this list.");
+            $returnData['type'] = 'warning';
+            $returnData['message'] = _t(
+                'Innoweb\\MailChimpSignup\\Model\\SignupPage.DUPLICATE',
+                'This email address is already subscribed to this list.'
+            );
 
         } else {
 
             // gather member data for submission
 
-            //get list data
-            $mergeVars = array();
-            $listInfo = $MailChimp->get(sprintf(
+            // get list data
+            $mergeVars = [];
+            $listInfo = $mailChimp->get(sprintf(
                 'lists/%s/merge-fields',
                 $this->ListID
             ));
             if ($listInfo && isset($listInfo['merge_fields'])) {
-                $fielddata = $listInfo['merge_fields'];
-                foreach($fielddata as $field) {
+                $fieldData = $listInfo['merge_fields'];
+                foreach ($fieldData as $field) {
                     if ($field['public']) {
-                        //add value from field
-                        if (isset($data[$field['tag']])) { $mergeVars[$field['tag']] = $data[$field['tag']]; }
+                        // add value from field
+                        if (isset($data[$field['tag']])) {
+                            $mergeVars[$field['tag']] = $data[$field['tag']];
+                        }
                     }
                 }
             }
 
             // same for groups
-            $aGroups = array();
-            $groupInfo = $MailChimp->get(sprintf(
+            $aGroups = [];
+            $groupInfo = $mailChimp->get(sprintf(
                 'lists/%s/interest-categories',
                 $this->ListID
             ));
             if ($groupInfo && isset($groupInfo['categories'])) {
-                foreach($groupInfo['categories'] as $group) {
+                foreach ($groupInfo['categories'] as $group) {
                     // get options
-                    $groupOptions = $MailChimp->get(sprintf(
+                    $groupOptions = $mailChimp->get(sprintf(
                         'lists/%s/interest-categories/%s/interests',
                         $this->ListID,
                         $group['id']
                     ));
-//                    Debug::log(print_r($groupOptions, true));
+
                     if ($groupOptions && isset($groupOptions['interests'])) {
                         // get submitted data
-                        if (is_array($data['groupings_'.$group['id']])) {
-                            $sumbittedGroups = $data['groupings_'.$group['id']];
+                        if (is_array($data['groupings_' . $group['id']])) {
+                            $submittedGroups = $data['groupings_' . $group['id']];
                         } else {
-                            $sumbittedGroups = array($data['groupings_'.$group['id']]);
+                            $submittedGroups = [$data['groupings_' . $group['id']]];
                         }
                         // init group array
                         foreach ($groupOptions['interests'] as $option) {
-                            if (in_array($option['id'], $sumbittedGroups)) {
+                            if (in_array($option['id'], $submittedGroups)) {
                                 $aGroups[$option['id']] = true;
                             } else {
                                 $aGroups[$option['id']] = false;
@@ -323,23 +430,22 @@ class MailChimpSignupPage_Controller extends Page_Controller {
             }
 
             // build submission data
-            $submissionData = array(
-                "email_address" => $data['EMAIL'],
-                "status" => "pending",
-            );
+            $submissionData = [
+                'email_address' =>  $data['EMAIL'],
+                'status'        =>  'pending'
+            ];
             if (count($mergeVars)) {
                 $submissionData['merge_fields'] = $mergeVars;
             }
             if (count($aGroups)) {
                 $submissionData['interests'] = $aGroups;
             }
-//            Debug::log(print_r($submissionData, true));
 
             if (!$memberFound) {
 
-                // not on list, new subscription
+                // no on list, new subscription
 
-                $MailChimp->post(
+                $mailChimp->post(
                     sprintf(
                         'lists/%s/members',
                         $this->ListID
@@ -351,7 +457,7 @@ class MailChimpSignupPage_Controller extends Page_Controller {
 
                 // update existing record
 
-                $MailChimp->patch(
+                $mailChimp->patch(
                     sprintf(
                         'lists/%s/members/%s',
                         $this->ListID,
@@ -359,36 +465,35 @@ class MailChimpSignupPage_Controller extends Page_Controller {
                     ),
                     $submissionData
                 );
-
             }
-
 
             // check if update/adding successful
-            if ($MailChimp->success()) {
+            if ($mailChimp->success()) {
 
                 // set message
-                $returnData["type"] = "good";
-                $returnData["message"] = $this->ContentSuccess;
+                $returnData['type'] = 'good';
+                $returnData['message'] = $this->ContentSuccess;
 
             } else {
-                SS_Log::log(new Exception('Last Error: '.print_r($MailChimp->getLastError(), true)), SS_Log::WARN);
-                SS_Log::log(new Exception('Last Request: '.print_r($MailChimp->getLastRequest(), true)), SS_Log::WARN);
-                SS_Log::log(new Exception('Last Response: '.print_r($MailChimp->getLastResponse(), true)), SS_Log::WARN);
+                $this->logger->warning(new \Exception('Last Error: ' . print_r($mailChimp->getLastError(), true)));
+                $this->logger->warning(new \Exception('Last Request: ' . print_r($mailChimp->getLastRequest(), true)));
+                $this->logger->warning(new \Exception('Last Response: ' . print_r($mailChimp->getLastResponse(), true)));
             }
-
         }
 
         return $returnData;
     }
 
-    private function sortArray() {
+    protected function sortArray()
+    {
         $args = func_get_args();
         $data = array_shift($args);
         foreach ($args as $n => $field) {
             if (is_string($field)) {
-                $tmp = array();
-                foreach ($data as $key => $row)
+                $tmp = [];
+                foreach ($data as $key => $row) {
                     $tmp[$key] = $row[$field];
+                }
                 $args[$n] = $tmp;
             }
         }
@@ -396,5 +501,4 @@ class MailChimpSignupPage_Controller extends Page_Controller {
         call_user_func_array('array_multisort', $args);
         return array_pop($args);
     }
-
 }
