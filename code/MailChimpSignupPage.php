@@ -59,8 +59,9 @@ class MailChimpSignupPage_Controller extends Page_Controller {
     
     public function Form() {
         
-        if (!($this->APIKey)) { Debug::show('Please set API key in CMS'); return false; }
-        if (!($this->ListID)) { Debug::show('Please set list id in CMS'); return false; }
+        if (!$this->APIKey || !$this->ListID) { 
+            return "<p>Sorry, the signup form could not be loaded.</p>";
+        }
         
         //initialize
         $MailChimp = new MailChimp($this->APIKey);
