@@ -6,6 +6,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [4.0.0]
 * module upgraded for SilverStripe 4.x compatibility
+* add error message in case API key or ListID are missing
 
 ## [3.0.2]
 
