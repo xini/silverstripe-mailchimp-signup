@@ -4,7 +4,6 @@ namespace Innoweb\MailChimpSignup\Pages;
 
 use DrewM\MailChimp\MailChimp;
 use SilverStripe\Core\Config\Config;
-use SilverStripe\Dev\Debug;
 use SilverStripe\Forms\CheckboxSetField;
 use SilverStripe\Forms\DropdownField;
 use SilverStripe\Forms\EmailField;
@@ -33,14 +32,8 @@ class SignupPageController extends \PageController {
 
     public function Form()
     {
-        if (!($this->APIKey)) {
-            Debug::show('Please set API key in CMS');
-            return false;
-        }
-
-        if (!($this->ListID)) {
-            Debug::show('Please set list id in CMS');
-            return false;
+        if (!$this->APIKey || !$this->ListID) {
+            return "<p>Sorry, the signup form could not be loaded.</p>";
         }
 
         // initialize
