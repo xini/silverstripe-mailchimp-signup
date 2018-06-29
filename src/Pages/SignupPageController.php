@@ -42,11 +42,11 @@ class SignupPageController extends \PageController {
 
         // Get list data
         $listInfo = $mailChimp->get(sprintf(
-            'lists/%s/merge-fields',
+            'lists/%s/merge-fields?count=999',
             $this->ListID
         ));
         $groupInfo = $mailChimp->get(sprintf(
-            'lists/%s/interest-categories',
+            'lists/%s/interest-categories?count=999',
             $this->ListID
         ));
 
@@ -196,7 +196,7 @@ class SignupPageController extends \PageController {
                 // get options
                 $options = [];
                 $groupOptions = $mailChimp->get(sprintf(
-                    'lists/%s/interest-categories/%s/interests',
+                    'lists/%s/interest-categories/%s/interests?count=999',
                     $this->ListID,
                     $group['id']
                 ));
@@ -373,7 +373,7 @@ class SignupPageController extends \PageController {
             // get list data
             $mergeVars = [];
             $listInfo = $mailChimp->get(sprintf(
-                'lists/%s/merge-fields',
+                'lists/%s/merge-fields?count=999',
                 $this->ListID
             ));
             if ($listInfo && isset($listInfo['merge_fields'])) {
@@ -391,14 +391,14 @@ class SignupPageController extends \PageController {
             // same for groups
             $aGroups = [];
             $groupInfo = $mailChimp->get(sprintf(
-                'lists/%s/interest-categories',
+                'lists/%s/interest-categories?count=999',
                 $this->ListID
             ));
             if ($groupInfo && isset($groupInfo['categories'])) {
                 foreach ($groupInfo['categories'] as $group) {
                     // get options
                     $groupOptions = $mailChimp->get(sprintf(
-                        'lists/%s/interest-categories/%s/interests',
+                        'lists/%s/interest-categories/%s/interests?count=999',
                         $this->ListID,
                         $group['id']
                     ));
