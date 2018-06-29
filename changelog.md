@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [3.0.4]
+
+* fix loading limits of list fields and properties
+
 ## [3.0.3]
 
 * add error message in case API key or ListID is missing

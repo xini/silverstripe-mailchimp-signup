@@ -69,11 +69,11 @@ class MailChimpSignupPage_Controller extends Page_Controller {
         
         // Get list data
         $listInfo = $MailChimp->get(sprintf(
-            'lists/%s/merge-fields', 
+            'lists/%s/merge-fields?count=999', 
             $this->ListID
         ));
         $groupInfo = $MailChimp->get(sprintf(
-            'lists/%s/interest-categories',
+            'lists/%s/interest-categories?count=999',
             $this->ListID
         ));
 //        Debug::log(print_r($listInfo, true));
@@ -189,7 +189,7 @@ class MailChimpSignupPage_Controller extends Page_Controller {
                 // get options
                 $options = array();
                 $groupOptions = $MailChimp->get(sprintf(
-                    'lists/%s/interest-categories/%s/interests', 
+                    'lists/%s/interest-categories/%s/interests?count=999', 
                     $this->ListID,
                     $group['id']
                 ));
@@ -326,7 +326,7 @@ class MailChimpSignupPage_Controller extends Page_Controller {
             //get list data
             $mergeVars = array();
             $listInfo = $MailChimp->get(sprintf(
-                'lists/%s/merge-fields',
+                'lists/%s/merge-fields?count=999',
                 $this->ListID
             ));
             if ($listInfo && isset($listInfo['merge_fields'])) {
@@ -342,18 +342,18 @@ class MailChimpSignupPage_Controller extends Page_Controller {
             // same for groups
             $aGroups = array();
             $groupInfo = $MailChimp->get(sprintf(
-                'lists/%s/interest-categories',
+                'lists/%s/interest-categories?count=999',
                 $this->ListID
             ));
             if ($groupInfo && isset($groupInfo['categories'])) {
                 foreach($groupInfo['categories'] as $group) {
                     // get options
                     $groupOptions = $MailChimp->get(sprintf(
-                        'lists/%s/interest-categories/%s/interests',
+                        'lists/%s/interest-categories/%s/interests?count=999',
                         $this->ListID,
                         $group['id']
-                        ));
-//                    Debug::log(print_r($groupOptions, true));
+                    ));
+//                  Debug::log(print_r($groupOptions, true));
                     if ($groupOptions && isset($groupOptions['interests'])) {
                         // get submitted data
                         if (is_array($data['groupings_'.$group['id']])) {
