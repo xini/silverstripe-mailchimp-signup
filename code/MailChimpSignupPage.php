@@ -12,7 +12,8 @@ class MailChimpSignupPage extends Page {
         'APIKey' => 'Varchar(255)',
         'ListID' => 'Varchar(255)',
         'ContentSuccess' => 'Text',
-        'ContentError' => 'Text'
+        'ContentError' => 'Text',
+        'RequireEmailConfirmation' => 'Boolean'
     );
     
     private static $defaults = array(
@@ -21,7 +22,8 @@ class MailChimpSignupPage extends Page {
         'ProvideComments' => false,
         'Priority' => '',
         'ContentSuccess' => 'The subscription was successful. You will receive a confirmation email shortly.',
-        'ContentError' => 'Unfortunately an error occurred during your subscription. Please try again.'
+        'ContentError' => 'Unfortunately an error occurred during your subscription. Please try again.',
+        'RequireEmailConfirmation' => true,
     );
     
     public function getCMSFields() {
@@ -35,6 +37,12 @@ class MailChimpSignupPage extends Page {
         $fields->addFieldToTab(
             "Root.MailChimp",
             new TextField('ListID', _t("MailChimpSignupPage.LISTID", 'List ID'))
+        );
+        $fields->addFieldToTab(
+            "Root.MailChimp",
+            FieldGroup::create(
+                CheckboxField::create('RequireEmailConfirmation', '')
+            )->setTitle('Require Email Confirmation')
         );
         $fields->addFieldToTab(
             "Root.MailChimp",
@@ -119,17 +127,45 @@ class MailChimpSignupPage_Controller extends Page_Controller {
                     switch ($field['type']) {
                     
                         case 'text':
+                        case 'address':
+                            if ($field['tag'] == "EMAIL") {
+                                $fields->push(
+                                    $newField = EmailField::create($field['tag'], $field['name'], $field['default_value'], 255)
+                                );
+                                $emailAdded = true;
+                            } else {
+                                $fields->push(
+                                    $newField = TextField::create($field['tag'], $field['name'], $field['default_value'], 255)
+                                );
+                            }
+                            break;
+                        
                         case 'number':
+                            $fields->push(
+                                $newField = NumericField::create($field['tag'], $field['name'], $field['default_value'], 255)
+                            );
+                            break;
+                            
                         case 'date':
                         case 'birthday':
-                        case 'address':
+                            $fields->push(
+                                $newField = DateField::create($field['tag'], $field['name'], $field['default_value'], 255)
+                            );
+                            break;
+                            
                         case 'phone':
+                            $fields->push(
+                                $newField = TextField::create($field['tag'], $field['name'], $field['default_value'], 255)
+                                    ->setAttribute('type', 'tel')
+                            );
+                            break;
+                            
                         case 'url':
-                            $fields->push( $newField = new TextField($field['tag'], $field['name'], $field['default_value'], 255));
-                            if ($field['tag'] == "EMAIL") {
-                                $emailAdded = true;
-                            }
-                        break;
+                            $fields->push(
+                                $newField = TextField::create($field['tag'], $field['name'], $field['default_value'], 255)
+                                    ->setAttribute('type', 'url')
+                            );
+                            break;
                                                 
                         case 'dropdown':
                             
@@ -138,7 +174,7 @@ class MailChimpSignupPage_Controller extends Page_Controller {
                             foreach($field['choices'] as $opt) { $optionSet[$opt] = $opt; }
                             
                             $fields->push( $newField = new DropdownField($field['tag'], $field['name'], $optionSet) );
-                        break;
+                            break;
                         
                         case 'radio':
                         
@@ -180,7 +216,7 @@ class MailChimpSignupPage_Controller extends Page_Controller {
         
         // check again if email needs to be added
         if (!$emailAdded) {
-            $fields->push( $newField = new EmailField('EMAIL', _t("MailChimpSignupPage.EmailAddress", 'Email Address'), null, 255));
+            $fields->push( $newField = EmailField::create('EMAIL', _t("MailChimpSignupPage.EmailAddress", 'Email Address'), null, 255));
         }
         
         if ($groupInfo && isset($groupInfo['categories'])) {
@@ -376,7 +412,7 @@ class MailChimpSignupPage_Controller extends Page_Controller {
             // build submission data
             $submissionData = array(
                 "email_address" => $data['EMAIL'],
-                "status" => "pending",
+                "status" => $this->RequireEmailConfirmation ? "pending" : "subscribed",
             );
             if (count($mergeVars)) {
                 $submissionData['merge_fields'] = $mergeVars;
