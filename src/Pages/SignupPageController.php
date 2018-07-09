@@ -95,18 +95,60 @@ class SignupPageController extends \PageController {
                     switch ($field['type']) {
 
                         case 'text':
+						case 'address':
+							if ($field['tag'] == 'EMAIL') {
+								$newField = EmailField::create(
+									$field['tag'],
+									$field['name'],
+									$field['default_value'],
+									255
+								);
+								$emailAdded = true;
+							} else {
+								$newField = TextField::create(
+									$field['tag'],
+									$field['name'],
+									$field['default_value'],
+									255
+								);
+							}
+                            break;
+						
                         case 'number':
-                        case 'date':
+                            $newField = NumericField::create(
+                                $field['tag'],
+                                $field['name'],
+                                $field['default_value'],
+                                255
+                            );
+                            break;
+
+						case 'date':
                         case 'birthday':
-                        case 'address':
+                            $newField = DateField::create(
+                                $field['tag'],
+                                $field['name'],
+                                $field['default_value'],
+                                255
+                            );
+                            break;
+                        
                         case 'phone':
+                            $newField = TextField::create(
+                                $field['tag'],
+                                $field['name'],
+                                $field['default_value'],
+                                255
+                            )->setAttribute('type', 'tel');
+                            break;
+						
                         case 'url':
                             $newField = TextField::create(
                                 $field['tag'],
                                 $field['name'],
                                 $field['default_value'],
                                 255
-                            );
+                            )->setAttribute('type', 'url');
                             break;
 
                         case 'dropdown':
@@ -150,10 +192,6 @@ class SignupPageController extends \PageController {
                     }
 
                     $fields->push($newField);
-
-                    if ($field['tag'] == 'EMAIL') {
-                        $emailAdded = true;
-                    }
 
                     // add description to field
                     if ($field['help_text']) {
@@ -424,8 +462,8 @@ class SignupPageController extends \PageController {
 
             // build submission data
             $submissionData = [
-                'email_address' =>  $data['EMAIL'],
-                'status'        =>  'pending'
+                'email_address' => $data['EMAIL'],
+                'status' => $this->RequireEmailConfirmation ? 'pending' : 'subscribed',
             ];
             if (count($mergeVars)) {
                 $submissionData['merge_fields'] = $mergeVars;

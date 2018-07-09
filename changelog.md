@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [4.1.0]
+
+* add option to omit email verification process on subscription
+* update form generator to generate more specific field types according to data type
+
 ## [4.0.1]
 
 * fix loading limits of list fields and properties

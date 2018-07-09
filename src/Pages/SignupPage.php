@@ -17,19 +17,21 @@ class SignupPage extends \Page {
     private static $table_name = 'MailChimpSignupPage';
 
     private static $db = [
-        'APIKey'            =>  'Varchar(255)',
-        'ListID'            =>  'Varchar(255)',
-        'ContentSuccess'    =>  'Text',
-        'ContentError'      =>  'Text'
+        'APIKey' =>  'Varchar(255)',
+        'ListID' =>  'Varchar(255)',
+        'ContentSuccess' =>  'Text',
+        'ContentError' =>  'Text',
+        'RequireEmailConfirmation' => 'Boolean',
     ];
 
     private static $defaults = [
-        'ShowInMenus'       =>  true,
-        'ShowInSearch'      =>  true,
-        'ProvideComments'   =>  false,
-        'Priority'          =>  '',
-        'ContentSuccess'    =>  'The subscription was successful. You will receive a confirmation email shortly.',
-        'ContentError'      =>  'Unfortunately an error occurred during your subscription. Please try again.'
+        'ShowInMenus' =>  true,
+        'ShowInSearch' =>  true,
+        'ProvideComments' =>  false,
+        'Priority' =>  '',
+        'ContentSuccess' =>  'The subscription was successful. You will receive a confirmation email shortly.',
+        'ContentError' =>  'Unfortunately an error occurred during your subscription. Please try again.',
+        'RequireEmailConfirmation' => true,
     ];
 
     public function getCMSFields()
@@ -47,6 +49,12 @@ class SignupPage extends \Page {
                     'ListID',
                     _t('Innoweb\\MailChimpSignup\\Model\\SignupPage.LISTID', 'List ID')
                 ),
+                $fields->addFieldToTab(
+                    "Root.MailChimp",
+                    FieldGroup::create(
+                        CheckboxField::create('RequireEmailConfirmation', '')
+                    )->setTitle(_t('Innoweb\\MailChimpSignup\\Model\\SignupPage.RequireEmailConfirmation', 'Require Email Confirmation'))
+                );
                 TextareaField::create(
                     'ContentSuccess',
                     _t('Innoweb\\MailChimpSignup\\Model\\SignupPage.CONTENTSUCCESS', 'Text for successful submission')
