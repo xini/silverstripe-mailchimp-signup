@@ -2,10 +2,10 @@
 
 namespace Innoweb\MailChimpSignup\Pages;
 
+use Page;
+use SilverStripe\Forms\FieldGroup;
 use SilverStripe\Forms\TextField;
 use SilverStripe\Forms\TextareaField;
-
-use Page;
 
 class SignupPage extends \Page {
 
@@ -54,7 +54,7 @@ class SignupPage extends \Page {
                     FieldGroup::create(
                         CheckboxField::create('RequireEmailConfirmation', '')
                     )->setTitle(_t('Innoweb\\MailChimpSignup\\Model\\SignupPage.RequireEmailConfirmation', 'Require Email Confirmation'))
-                );
+                ),
                 TextareaField::create(
                     'ContentSuccess',
                     _t('Innoweb\\MailChimpSignup\\Model\\SignupPage.CONTENTSUCCESS', 'Text for successful submission')

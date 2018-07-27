@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [4.1.1]
+
+* fix typo
+
 ## [4.1.0]
 
 * add option to omit email verification process on subscription
