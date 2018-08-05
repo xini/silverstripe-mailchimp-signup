@@ -6,6 +6,7 @@ use Page;
 use SilverStripe\Forms\FieldGroup;
 use SilverStripe\Forms\TextField;
 use SilverStripe\Forms\TextareaField;
+use SilverStripe\Forms\CheckboxField;
 
 class SignupPage extends \Page {
 
@@ -49,12 +50,9 @@ class SignupPage extends \Page {
                     'ListID',
                     _t('Innoweb\\MailChimpSignup\\Model\\SignupPage.LISTID', 'List ID')
                 ),
-                $fields->addFieldToTab(
-                    "Root.MailChimp",
-                    FieldGroup::create(
-                        CheckboxField::create('RequireEmailConfirmation', '')
-                    )->setTitle(_t('Innoweb\\MailChimpSignup\\Model\\SignupPage.RequireEmailConfirmation', 'Require Email Confirmation'))
-                ),
+                FieldGroup::create(
+                    CheckboxField::create('RequireEmailConfirmation', '')
+                )->setTitle(_t('Innoweb\\MailChimpSignup\\Model\\SignupPage.RequireEmailConfirmation', 'Require Email Confirmation')),
                 TextareaField::create(
                     'ContentSuccess',
                     _t('Innoweb\\MailChimpSignup\\Model\\SignupPage.CONTENTSUCCESS', 'Text for successful submission')
