@@ -52,6 +52,8 @@ class MailChimpSignupPage extends Page {
             "Root.MailChimp",
             new TextareaField('ContentError', _t("MailChimpSignupPage.CONTENTERROR", 'Text for unsuccessful submission'))
         );
+
+        $this->extend('updateMailchimpCMSFields', $fields);
         
         return $fields;
     }
@@ -293,6 +295,9 @@ class MailChimpSignupPage_Controller extends Page_Controller {
         if (class_exists('SpamProtectorManager')) {
             $form = $form->enableSpamProtection();
         }
+
+        // Re-initiate the form error set up with the new HTMLID and Spam Protection field (if applies).
+        $form->setupFormErrors();
 
         return $form;
     }
