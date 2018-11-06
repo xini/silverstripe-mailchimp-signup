@@ -63,6 +63,8 @@ class SignupPage extends \Page {
                 )
             ]
         );
+        
+        $this->extend('updateMailchimpCMSFields', $fields);
 
         return $fields;
     }

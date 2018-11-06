@@ -5,12 +5,14 @@ namespace Innoweb\MailChimpSignup\Pages;
 use DrewM\MailChimp\MailChimp;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Forms\CheckboxSetField;
+use SilverStripe\Forms\DateField;
 use SilverStripe\Forms\DropdownField;
 use SilverStripe\Forms\EmailField;
 use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\Form;
 use SilverStripe\Forms\FormAction;
 use SilverStripe\Forms\LiteralField;
+use SilverStripe\Forms\NumericField;
 use SilverStripe\Forms\OptionsetField;
 use SilverStripe\Forms\RequiredFields;
 use SilverStripe\Forms\TextField;
@@ -339,6 +341,9 @@ class SignupPageController extends \PageController {
         if (class_exists('SpamProtectorManager')) {
             $form = $form->enableSpamProtection();
         }
+        
+        // Re-initiate the form error set up with the new HTMLID and Spam Protection field (if applies).
+        $form->setupFormErrors();
 
         return $form;
     }

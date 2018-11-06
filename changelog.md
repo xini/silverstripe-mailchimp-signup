@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [4.2.0]
+
+* add hook to update CMS fields
+* fix form error setup
+* fix missing use statements
+
 ## [4.1.2]
 
 * add missing namespace
