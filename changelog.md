@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [3.2.0]
+
+* add hook to update CMS fields
+* fix form error setup
+
 ## [3.1.0]
 
 * add option to omit email verification process on subscription
