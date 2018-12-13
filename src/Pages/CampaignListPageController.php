@@ -3,7 +3,6 @@
 namespace Innoweb\MailChimpSignup\Pages;
 
 use Innoweb\MailChimpSignup\Model\Campaign;
-use PageController;
 
 class CampaignListPageController extends \PageController {
 

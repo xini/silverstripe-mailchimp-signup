@@ -5,17 +5,16 @@ namespace Innoweb\MailChimpSignup\Pages;
 use DrewM\MailChimp\MailChimp;
 use Innoweb\MailChimpSignup\Model\Campaign;
 use SilverStripe\Core\Config\Config;
-use SilverStripe\Forms\GridField\GridFieldConfig_RecordEditor;
-use SilverStripe\Forms\GridField\GridFieldSortableHeader;
-use SilverStripe\Forms\GridField\GridField;
+use SilverStripe\Forms\CheckboxField;
+use SilverStripe\Forms\LiteralField;
+use SilverStripe\Forms\NumericField;
 use SilverStripe\Forms\Tab;
 use SilverStripe\Forms\TextField;
-use SilverStripe\Forms\LiteralField;
-use SilverStripe\Forms\CheckboxField;
-use SilverStripe\Forms\NumericField;
+use SilverStripe\Forms\GridField\GridField;
+use SilverStripe\Forms\GridField\GridFieldConfig_RecordEditor;
+use SilverStripe\Forms\GridField\GridFieldSortableHeader;
 use SilverStripe\ORM\FieldType\DBDatetime;
 use Symbiote\MultiValueField\Fields\MultiValueDropdownField;
-use Page;
 
 class CampaignListPage extends \Page {
 

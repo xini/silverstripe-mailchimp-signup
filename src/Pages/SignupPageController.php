@@ -17,7 +17,6 @@ use SilverStripe\Forms\OptionsetField;
 use SilverStripe\Forms\RequiredFields;
 use SilverStripe\Forms\TextField;
 use SilverStripe\View\Requirements;
-use PageController;
 
 class SignupPageController extends \PageController {
 
@@ -26,16 +25,11 @@ class SignupPageController extends \PageController {
         'success'
     ];
 
-    private static $dependencies = [
-        'logger'    =>  '%$Psr\Log\LoggerInterface'
-    ];
-
-    public $logger;
-
     public function Form()
     {
         if (!$this->APIKey || !$this->ListID) {
-            return "<p>Sorry, the signup form could not be loaded.</p>";
+            user_error("MailChimp API key or list ID is missing", E_USER_WARNING);
+            return false;
         }
 
         // initialize
@@ -215,8 +209,8 @@ class SignupPageController extends \PageController {
             if ($mailChimp->getLastRequest()) {
                 $message .= ' (last reguest: '.print_r($mailChimp->getLastRequest(), true).')';
             }
-            $this->logger->warning($message);
-            return null;
+            user_error($message, E_USER_WARNING);
+            return false;
         }
 
         // check again if email needs to be added
@@ -511,9 +505,9 @@ class SignupPageController extends \PageController {
                 $returnData['message'] = $this->ContentSuccess;
 
             } else {
-                $this->logger->warning(new \Exception('Last Error: ' . print_r($mailChimp->getLastError(), true)));
-                $this->logger->warning(new \Exception('Last Request: ' . print_r($mailChimp->getLastRequest(), true)));
-                $this->logger->warning(new \Exception('Last Response: ' . print_r($mailChimp->getLastResponse(), true)));
+                user_error('Last Error: ' . print_r($mailChimp->getLastError(), true), E_USER_WARNING);
+                user_error('Last Request: ' . print_r($mailChimp->getLastRequest(), true), E_USER_WARNING);
+                user_error('Last Response: ' . print_r($mailChimp->getLastResponse(), true), E_USER_WARNING);
             }
         }
 

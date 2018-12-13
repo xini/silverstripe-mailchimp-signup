@@ -2,11 +2,11 @@
 
 namespace Innoweb\MailChimpSignup\Pages;
 
-use Page;
+use SilverStripe\Forms\CheckboxField;
 use SilverStripe\Forms\FieldGroup;
 use SilverStripe\Forms\TextField;
 use SilverStripe\Forms\TextareaField;
-use SilverStripe\Forms\CheckboxField;
+use SilverStripe\Forms\RequiredFields;
 
 class SignupPage extends \Page {
 
@@ -67,5 +67,9 @@ class SignupPage extends \Page {
         $this->extend('updateMailchimpCMSFields', $fields);
 
         return $fields;
+    }
+    
+    public function getCMSValidator() {
+        return RequiredFields::create('APIKey', 'ListID');
     }
 }

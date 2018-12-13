@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [4.2.2]
+
+* fix error handling
+
 ## [4.2.1]
 
 * fix initiation of form errors, use restoreFormState() instead of the SS3 setupFormErrors()
