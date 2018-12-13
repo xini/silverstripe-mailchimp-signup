@@ -343,7 +343,7 @@ class SignupPageController extends \PageController {
         }
         
         // Re-initiate the form error set up with the new HTMLID and Spam Protection field (if applies).
-        $form->setupFormErrors();
+        $form->restoreFormState();
 
         return $form;
     }
