@@ -15,8 +15,9 @@ use SilverStripe\Forms\GridField\GridFieldConfig_RecordEditor;
 use SilverStripe\Forms\GridField\GridFieldSortableHeader;
 use SilverStripe\ORM\FieldType\DBDatetime;
 use Symbiote\MultiValueField\Fields\MultiValueDropdownField;
+use Page;
 
-class CampaignListPage extends \Page {
+class CampaignListPage extends Page {
 
     private static $singular_name = 'MailChimp Campaign List Page';
     private static $plural_name = 'MailChimp Campaign List Pages';

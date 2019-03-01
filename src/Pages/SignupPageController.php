@@ -16,9 +16,11 @@ use SilverStripe\Forms\NumericField;
 use SilverStripe\Forms\OptionsetField;
 use SilverStripe\Forms\RequiredFields;
 use SilverStripe\Forms\TextField;
+use SilverStripe\SpamProtection\Extension\FormSpamProtectionExtension;
 use SilverStripe\View\Requirements;
+use PageController;
 
-class SignupPageController extends \PageController {
+class SignupPageController extends PageController {
 
     private static $allowed_actions = [
         'Form',
@@ -332,7 +334,7 @@ class SignupPageController extends \PageController {
             Requirements::javascript('innoweb/silverstripe-mailchimp-signup: client/dist/javascript/mailchimp-validation.min.js');
         }
 
-        if (class_exists('SpamProtectorManager')) {
+        if (class_exists(FormSpamProtectionExtension::class)) {
             $form = $form->enableSpamProtection();
         }
         

@@ -7,8 +7,9 @@ use SilverStripe\Forms\FieldGroup;
 use SilverStripe\Forms\TextField;
 use SilverStripe\Forms\TextareaField;
 use SilverStripe\Forms\RequiredFields;
+use Page;
 
-class SignupPage extends \Page {
+class SignupPage extends Page {
 
     private static $singular_name = 'MailChimp Signup Form';
     private static $plural_name = 'MailChimp Signup Forms';
