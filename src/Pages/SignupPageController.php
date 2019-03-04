@@ -18,6 +18,7 @@ use SilverStripe\Forms\RequiredFields;
 use SilverStripe\Forms\TextField;
 use SilverStripe\SpamProtection\Extension\FormSpamProtectionExtension;
 use SilverStripe\View\Requirements;
+use BadMethodCallException;
 use PageController;
 
 class SignupPageController extends PageController {
@@ -311,10 +312,14 @@ class SignupPageController extends PageController {
         $form->setHTMLID('mailchimp-signup-form');
 
         // Retrieve potentially saved data and populate form field if values were present in session variables
-        $session = $this->getRequest()->getSession();
-        $sessionData = $session->get('FormInfo.' . $form->FormName() . '.data');
-        if (is_array($sessionData)) {
-            $form->loadDataFrom($sessionData);
+        try {
+            $session = $this->getRequest()->getSession();
+            $sessionData = $session->get('FormInfo.' . $form->FormName() . '.data');
+            if (is_array($sessionData)) {
+                $form->loadDataFrom($sessionData);
+            }
+        } catch (BadMethodCallException $e) {
+            // no session available
         }
 
         if (count($jsValidation) > 0) {
