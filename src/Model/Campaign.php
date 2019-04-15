@@ -26,7 +26,7 @@ class Campaign extends DataObject {
 
     private static $summary_fields = [
         'Title'         =>  'Title',
-        'Description'   =>  'Description',
+        'Subject'       =>  'Subject',
         'SentDate.Nice' =>  'Sent',
         'Status'        =>  'Status'
     ];
