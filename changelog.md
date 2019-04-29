@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [4.2.7]
+
+* update campaign CMS fields to make it clearer what can be changed
+* add rel="noopener noreferrer" to links in default template
+
 ## [4.2.6]
 
 * fix campaign summary fields
