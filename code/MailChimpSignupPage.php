@@ -36,7 +36,7 @@ class MailChimpSignupPage extends Page {
         );
         $fields->addFieldToTab(
             "Root.MailChimp",
-            new TextField('ListID', _t("MailChimpSignupPage.LISTID", 'List ID'))
+            new TextField('ListID', _t("MailChimpSignupPage.LISTID", 'Audience ID'))
         );
         $fields->addFieldToTab(
             "Root.MailChimp",

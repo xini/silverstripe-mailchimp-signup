@@ -62,12 +62,12 @@ class MailChimpCampaignListPage extends Page {
                 // add list filter
                 $fields->addFieldToTab(
                     "Root.MailChimp",
-                    MultiValueDropdownField::create('ListIDs', _t('MailChimpCampaignListPage.LimitByLists', 'Only show campaigns sent to the following lists'), $listSource)
+                    MultiValueDropdownField::create('ListIDs', _t('MailChimpCampaignListPage.LimitByLists', 'Only show campaigns sent to the following audiences'), $listSource)
                 );
                 // add segment checkbox
                 $fields->addFieldToTab(
                     "Root.MailChimp",
-                    CheckboxField::create('HideSentToSegments', _t('MailChimpCampaignListPage.HideSentToSegments', 'Hide campaigns sent to segments of a list'))
+                    CheckboxField::create('HideSentToSegments', _t('MailChimpCampaignListPage.HideSentToSegments', 'Hide campaigns sent to segments of an audience'))
                 );
                 // add segment checkbox
                 $fields->addFieldToTab(
