@@ -21,7 +21,6 @@
 	"extra": {
 		"expose": [
 			"client/dist",
-			"client/thirdparty",
 			"client/images"
 		],
 		"branch-alias": {

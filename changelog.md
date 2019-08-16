@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [4.3.1]
+
+* fix composer expose
+
 ## [4.3.0]
 
 * upgrade front-end build to gulp 4
