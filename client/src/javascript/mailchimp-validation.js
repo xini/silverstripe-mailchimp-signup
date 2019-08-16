@@ -1,9 +1,6 @@
 (function($) {
 	$(document).ready(function() {
-		if (typeof mailchimp_validation_options !== 'undefined') {
-			$('#mailchimp-signup-form').validate(
-				mailchimp_validation_options
-			);
-		}
+		// no rules required, leave everything to html5 markup rules
+		$('#mailchimp-signup-form').validate();
 	});
 }(jQuery));

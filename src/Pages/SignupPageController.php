@@ -22,6 +22,9 @@ use BadMethodCallException;
 use PageController;
 
 class SignupPageController extends PageController {
+    
+    private static $block_default_jquery_and_validate = false;
+    private static $block_form_validation = false;
 
     private static $allowed_actions = [
         'Form',
@@ -30,11 +33,13 @@ class SignupPageController extends PageController {
 
     public function Form()
     {
+        $this->extend('onBeforeSignupForm');
+        
         if (!$this->APIKey || !$this->ListID) {
             user_error("MailChimp API key or list ID is missing", E_USER_WARNING);
             return false;
         }
-
+        
         // initialize
         $mailChimp = new MailChimp($this->APIKey);
         $mailChimp->verify_ssl = Config::inst()->get(MailChimp::class, 'verify_ssl');
@@ -54,7 +59,6 @@ class SignupPageController extends PageController {
 
         // create validator with default email field
         $validator = RequiredFields::create('EMAIL');
-        $jsValidation = ['EMAIL'];
 
         $emailAdded = false;
 
@@ -87,7 +91,6 @@ class SignupPageController extends PageController {
                     // add field validation
                     if ($field['required']) {
                         $validator->addRequiredField($field['tag']);
-                        $jsValidation[] = $field['tag'];
                     }
 
                     // add field
@@ -322,29 +325,25 @@ class SignupPageController extends PageController {
             // no session available
         }
 
-        if (count($jsValidation) > 0) {
-            // set validation rules
-            $js = 'var mailchimp_validation_options = { rules: {';
-            foreach ($jsValidation as $field) {
-                $js .= '"' . $field . '": { required: true },';
-            }
-            $js = rtrim($js, ',');
-            $js .= '}};';
-
-            Requirements::customScript($js, 'formvalidator');
-            // load validator
-            Requirements::javascript('silverstripe/admin: thirdparty/jquery/jquery.js');
-            Requirements::javascript('innoweb/silverstripe-mailchimp-signup: client/thirdparty/jquery-validate/jquery.validate.min.js');
-            // load validation script
+        // load jquery and validate
+        if (!$this->config()->get('block_default_jquery_and_validate')) {
+            Requirements::javascript('innoweb/silverstripe-mailchimp-signup: client/dist/javascript/jquery.min.js');
+            Requirements::javascript('innoweb/silverstripe-mailchimp-signup: client/dist/javascript/jquery-validate.min.js');
+        }
+        // load validation script
+        if (!$this->config()->get('block_form_validation')) {
             Requirements::javascript('innoweb/silverstripe-mailchimp-signup: client/dist/javascript/mailchimp-validation.min.js');
         }
 
+        // enable spam protection if available
         if (class_exists(FormSpamProtectionExtension::class)) {
             $form = $form->enableSpamProtection();
         }
         
         // Re-initiate the form error set up with the new HTMLID and Spam Protection field (if applies).
         $form->restoreFormState();
+        
+        $this->extend('updateSignupForm', $form);
 
         return $form;
     }

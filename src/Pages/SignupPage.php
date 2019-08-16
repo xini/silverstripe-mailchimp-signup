@@ -49,7 +49,7 @@ class SignupPage extends Page {
                 ),
                 TextField::create(
                     'ListID',
-                    _t('Innoweb\\MailChimpSignup\\Model\\SignupPage.LISTID', 'List ID')
+                    _t('Innoweb\\MailChimpSignup\\Model\\SignupPage.LISTID', 'Audience ID')
                 ),
                 FieldGroup::create(
                     CheckboxField::create('RequireEmailConfirmation', '')

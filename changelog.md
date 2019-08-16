@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [4.3.0]
+
+* upgrade front-end build to gulp 4
+* replace jQuery and validate with current npm versions
+* add config options to block js requirements
+* add SS extension hooks to signup form method
+* rename MailChimp 'Lists' to 'Audiences' in front-end
+
 ## [4.2.7]
 
 * update campaign CMS fields to make it clearer what can be changed

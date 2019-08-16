@@ -37,9 +37,26 @@ Config::inst()->update('DrewM\MailChimp\MailChimp', 'verify_ssl', false);
 
 ### MailChimpSignupPage
 
-The page type has a 'MailChimp' tab where the MailChimp API Key and the ListID can be configured. 
+The page type has a 'MailChimp' tab where the MailChimp API Key and the AudienceID can be configured. 
 
 Once the page is saved it will automatically read the fields from the MailChimp list and display a generated signup form based on these fields.
+
+You can block the loading of jQuery and jQuery validate by using the following config option:
+
+```
+Innoweb\MailChimpSignup\Pages\SignupPageController:
+  block_default_jquery_and_validate: true
+```
+
+You can block the loading of the form validation script by using the following config option:
+
+```
+Innoweb\MailChimpSignup\Pages\SignupPageController:
+  block_form_validation: true
+```
+
+If you keep this enabled, you need to have jQuery/validate enabled as well or load these libraries by other means before this form validation script.
+
 
 ### MailChimpCampaignListPage 
 
@@ -48,7 +65,7 @@ The page type has a 'MailChimp' tab where the MailChimp API Key, as well as the 
 The following configuration options are available:
 
 ```
-Innoweb\MailChimpSignup\Model\CampaignListPage:
+Innoweb\MailChimpSignup\Pages\CampaignListPage:
   auto_update: true
   update_interval: 3600
 ```

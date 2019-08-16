@@ -121,7 +121,7 @@ class CampaignListPage extends Page {
                             'ListIDs',
                             _t(
                                 'Innoweb\\MailChimpSignup\\Model\\CampaignListPage.LimitByLists',
-                                'Only show campaigns sent to the following lists'
+                                'Only show campaigns sent to the following audiences'
                             ),
                             $listSource
                         ),
@@ -131,7 +131,7 @@ class CampaignListPage extends Page {
                             'HideSentToSegments',
                             _t(
                                 'Innoweb\\MailChimpSignup\\Model\\CampaignListPage.HideSentToSegments',
-                                'Hide campaigns sent to segments of a list'
+                                'Hide campaigns sent to segments of an audience'
                             )
                         ),
 
