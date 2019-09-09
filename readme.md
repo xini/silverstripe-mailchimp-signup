@@ -57,6 +57,15 @@ Innoweb\MailChimpSignup\Pages\SignupPageController:
 
 If you keep this enabled, you need to have jQuery/validate enabled as well or load these libraries by other means before this form validation script.
 
+The forms fields loaded from MailChimp are cached for 5 minutes by default. You can change the cache time in the config:
+
+```
+Innoweb\MailChimpSignup\Pages\SignupPage:
+  field_cache_seconds: 300
+```
+
+Whenever the signup page is published, the cache is deleted.
+
 
 ### MailChimpCampaignListPage 
 

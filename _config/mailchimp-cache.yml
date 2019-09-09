@@ -1,0 +1,14 @@
+---
+name: mailchimp_cache
+After:
+  - '#corecache'
+---
+Innoweb\MailChimpSignup\Pages\SignupPage:
+  field_cache_seconds: 300
+
+SilverStripe\Core\Injector\Injector:
+  Psr\SimpleCache\CacheInterface.MailchimpFieldCache:
+    factory: SilverStripe\Core\Cache\CacheFactory
+    constructor:
+      namespace: "MailchimpFieldCache"
+      defaultLifetime: 600

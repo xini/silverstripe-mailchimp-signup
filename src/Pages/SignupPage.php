@@ -2,11 +2,13 @@
 
 namespace Innoweb\MailChimpSignup\Pages;
 
+use Psr\SimpleCache\CacheInterface;
+use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Forms\CheckboxField;
 use SilverStripe\Forms\FieldGroup;
+use SilverStripe\Forms\RequiredFields;
 use SilverStripe\Forms\TextField;
 use SilverStripe\Forms\TextareaField;
-use SilverStripe\Forms\RequiredFields;
 use Page;
 
 class SignupPage extends Page {
@@ -17,6 +19,8 @@ class SignupPage extends Page {
     private static $icon = 'innoweb/silverstripe-mailchimp-signup:client/images/treeicons/page-mailchimp.png';
 
     private static $table_name = 'MailChimpSignupPage';
+    
+    private static $field_cache_seconds = 300;
 
     private static $db = [
         'APIKey' =>  'Varchar(255)',
@@ -70,7 +74,17 @@ class SignupPage extends Page {
         return $fields;
     }
     
-    public function getCMSValidator() {
+    public function getCMSValidator()
+    {
         return RequiredFields::create('APIKey', 'ListID');
+    }
+    
+    public function onAfterPublish()
+    {
+        parent::onAfterPublish();
+        
+        // clear form field cache
+        $cache = Injector::inst()->get(CacheInterface::class . '.MailchimpFieldCache');
+        $cache->clear();
     }
 }
