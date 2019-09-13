@@ -3,9 +3,8 @@
 namespace Innoweb\MailChimpSignup\Pages;
 
 use DrewM\MailChimp\MailChimp;
-use Psr\SimpleCache\CacheInterface;
+use Innoweb\MailChimpSignup\MailchimpDataLoader;
 use SilverStripe\Core\Config\Config;
-use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Forms\CheckboxSetField;
 use SilverStripe\Forms\DateField;
 use SilverStripe\Forms\DropdownField;
@@ -324,47 +323,9 @@ class SignupPageController extends PageController {
             return false;
         }
         
-        $cache = Injector::inst()->get(CacheInterface::class . '.MailchimpFieldCache');
+        $loader = MailchimpDataLoader::getInstance($this->APIKey, $this->ListID);
+        return $loader->getMergeFields();
         
-        if (!$cache->has('MergeFields'.md5($this->APIKey.$this->ListID))) {
-        
-            // initialize
-            $mailChimp = new MailChimp($this->APIKey);
-            $mailChimp->verify_ssl = Config::inst()->get(MailChimp::class, 'verify_ssl');
-            
-            // Get list data
-            $listInfo = $mailChimp->get(sprintf(
-                'lists/%s/merge-fields?count=999',
-                $this->ListID
-            ));
-            
-            if (!$listInfo || !isset($listInfo['merge_fields'])) {
-                $message = "Form fields could not be loaded.";
-                if ($listInfo && isset($listInfo['status']) && isset($listInfo['error']) && isset($listInfo['title'])) {
-                    $message .= ' ('.$listInfo['status'].': '.$listInfo['title'].': '.$listInfo['error'].')';
-                }
-                if ($mailChimp->getLastError()) {
-                    $message .= ' (last error: '.$mailChimp->getLastError().')';
-                }
-                if ($mailChimp->getLastResponse()) {
-                    $message .= ' (last response: '.print_r($mailChimp->getLastResponse(), true).')';
-                }
-                if ($mailChimp->getLastRequest()) {
-                    $message .= ' (last reguest: '.print_r($mailChimp->getLastRequest(), true).')';
-                }
-                user_error($message, E_USER_WARNING);
-                
-                return false;
-            }
-            
-            // store to cache
-            $cache->set('MergeFields'.md5($this->APIKey.$this->ListID), $listInfo, Config::inst()->get(SignupPage::class, 'field_cache_seconds'));
-            
-        } else {
-            $listInfo = $cache->get('MergeFields'.md5($this->APIKey.$this->ListID));
-        }
-        
-        return $listInfo;
     }
     
     private function getMailchimpCategories()
@@ -374,49 +335,8 @@ class SignupPageController extends PageController {
             return false;
         }
         
-        $cache = Injector::inst()->get(CacheInterface::class . '.MailchimpFieldCache');
-        
-        if (!$cache->has('Categories'.md5($this->APIKey.$this->ListID))) {
-        
-            // initialize
-            $mailChimp = new MailChimp($this->APIKey);
-            $mailChimp->verify_ssl = Config::inst()->get(MailChimp::class, 'verify_ssl');
-            
-            $groupInfo = $mailChimp->get(sprintf(
-                'lists/%s/interest-categories?count=999',
-                $this->ListID
-            ));
-            
-            if ($groupInfo && isset($groupInfo['categories'])) {
-                $categories = [];
-                
-                foreach ($groupInfo['categories'] as $group) {
-                    
-                    // get options
-                    $groupOptions = $mailChimp->get(sprintf(
-                        'lists/%s/interest-categories/%s/interests?count=999',
-                        $this->ListID,
-                        $group['id']
-                    ));
-                    
-                    $group['options'] = $groupOptions;
-                    
-                    $categories[] = $group;
-                    
-                }
-                
-                // store to cache
-                $cache->set('Categories'.md5($this->APIKey.$this->ListID), $categories, Config::inst()->get(SignupPage::class, 'field_cache_seconds'));
-                
-            } else {
-                $categories = false;
-            }
-            
-        } else {
-            $categories = $cache->get('Categories'.md5($this->APIKey.$this->ListID));
-        }
-        
-        return $categories;
+        $loader = MailchimpDataLoader::getInstance($this->APIKey, $this->ListID);
+        return $loader->getCategories();
     }
     
     public function subscribe($data, $form)
@@ -484,13 +404,10 @@ class SignupPageController extends PageController {
 
             // gather member data for submission
 
-            // get list data
             $mergeVars = [];
-            $listInfo = $mailChimp->get(sprintf(
-                'lists/%s/merge-fields?count=999',
-                $this->ListID
-            ));
-            if ($listInfo && isset($listInfo['merge_fields'])) {
+            // get list data
+            $listInfo = $this->getMailchimpMergeFields();
+            if ($listInfo) {
                 $fieldData = $listInfo['merge_fields'];
                 foreach ($fieldData as $field) {
                     if ($field['public']) {
@@ -501,22 +418,16 @@ class SignupPageController extends PageController {
                     }
                 }
             }
-
+            
             // same for groups
             $aGroups = [];
-            $groupInfo = $mailChimp->get(sprintf(
-                'lists/%s/interest-categories?count=999',
-                $this->ListID
-            ));
-            if ($groupInfo && isset($groupInfo['categories'])) {
-                foreach ($groupInfo['categories'] as $group) {
+            $groupInfo = $this->getMailchimpCategories();
+            if ($groupInfo) {
+                foreach ($groupInfo as $group) {
+                    
                     // get options
-                    $groupOptions = $mailChimp->get(sprintf(
-                        'lists/%s/interest-categories/%s/interests?count=999',
-                        $this->ListID,
-                        $group['id']
-                    ));
-
+                    $groupOptions = $group['options'];
+                    
                     if ($groupOptions && isset($groupOptions['interests'])) {
                         // get submitted data
                         if (is_array($data['groupings_' . $group['id']])) {
