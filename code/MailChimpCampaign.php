@@ -18,7 +18,7 @@ class MailChimpCampaign extends DataObject {
     
     private static $summary_fields = array(
         'Title' => 'Title',
-        'Description' => 'Description',
+        'Subject' => 'Subject',
         'SentDate.Nice' => 'Sent',
         'Status' => 'Status',
     );
