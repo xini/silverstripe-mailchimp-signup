@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [3.2.3]
+
+* add support for Mailchimp address fields
+
 ## [3.2.2]
 
 * fix campaign summary fields
