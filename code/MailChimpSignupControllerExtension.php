@@ -285,7 +285,11 @@ class MailChimpSignupControllerExtension extends Extension {
             }
             
             // redirect
-            return $this->owner->redirect($this->owner->join_links($this->owner->Link(), 'success'));
+            $successLink = $this->owner->Link('success');
+            if ($this->owner->hasMethod('getSuccessLink')) {
+                $successLink = $this->owner->getSuccessLink();
+            }
+            return $this->owner->redirect($successLink);
             
         } else {
             
@@ -296,6 +300,9 @@ class MailChimpSignupControllerExtension extends Extension {
             $form->sessionMessage($result['message'], $result['type']);
             
             // redirect back
+            if ($this->owner->hasMethod('getErrorLink')) {
+                return $this->owner->redirect($this->owner->getErrorLink());
+            }
             return $this->owner->redirectBack();
         }
         

@@ -17,6 +17,11 @@ class MailChimpSignupDataExtension extends DataExtension {
     );
     
     public function updateCMSFields(FieldList $fields) {
+        $fields->removeByName('APIKey');
+        $fields->removeByName('ListID');
+        $fields->removeByName('RequireEmailConfirmation');
+        $fields->removeByName('ContentSuccess');
+        $fields->removeByName('ContentError');
         $fields->addFieldsToTab(
             "Root.MailChimp",
             array(
