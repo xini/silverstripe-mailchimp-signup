@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [3.3.0]
+
+* move Mailchimp signup functionality to extensions so that this can be used for other objects than pages, e.g. content blocks
+
 ## [3.2.3]
 
 * add support for Mailchimp address fields
