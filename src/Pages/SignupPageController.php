@@ -23,7 +23,7 @@ use BadMethodCallException;
 use PageController;
 
 class SignupPageController extends PageController {
-    
+
     private static $block_default_jquery_and_validate = false;
     private static $block_form_validation = false;
 
@@ -35,10 +35,10 @@ class SignupPageController extends PageController {
     public function Form()
     {
         $this->extend('onBeforeSignupForm');
-        
+
         // Get list data
         $listInfo = $this->getMailchimpMergeFields();
-        
+
         // create field list and validator
         $fields = FieldList::create();
 
@@ -100,7 +100,7 @@ class SignupPageController extends PageController {
 								);
 							}
                             break;
-						
+
                         case 'number':
                             $newField = NumericField::create(
                                 $field['tag'],
@@ -119,7 +119,7 @@ class SignupPageController extends PageController {
                                 255
                             );
                             break;
-                        
+
                         case 'phone':
                             $newField = TextField::create(
                                 $field['tag'],
@@ -128,7 +128,7 @@ class SignupPageController extends PageController {
                                 255
                             )->setAttribute('type', 'tel');
                             break;
-						
+
                         case 'url':
                             $newField = TextField::create(
                                 $field['tag'],
@@ -201,6 +201,7 @@ class SignupPageController extends PageController {
             $fields->push($newField);
         }
 
+        // add group fields
         $groupInfo = $this->getMailchimpCategories();
         if ($groupInfo) {
             foreach ($groupInfo as $group) {
@@ -268,6 +269,22 @@ class SignupPageController extends PageController {
             }
         }
 
+        $usesEmailTypeOptions = $this->getUsesEmailTypeOptions();
+        if ($usesEmailTypeOptions) {
+            $fields->push(
+                OptionsetField::create(
+                    'EMAILTYPE',
+                    _t('Innoweb\\MailChimpSignup\\Model\\SignupPage.PREFERREDFORMAT', 'Preferred Format'),
+                    [
+                        'html' => _t('Innoweb\\MailChimpSignup\\Model\\SignupPage.FORMATHTML', 'HTML'),
+                        'text' => _t('Innoweb\\MailChimpSignup\\Model\\SignupPage.FORMATTEXT', 'Plain-text')
+                    ],
+                    'html'
+                )
+            );
+            $validator->addRequiredField('EMAILTYPE');
+        }
+
         $actions = FieldList::create(
             FormAction::create('subscribe', _t('Innoweb\\MailChimpSignup\\Model\\SignupPage.SUBSCRIBE', 'subscribe'))
         );
@@ -307,38 +324,49 @@ class SignupPageController extends PageController {
         if (class_exists(FormSpamProtectionExtension::class)) {
             $form = $form->enableSpamProtection();
         }
-        
+
         // Re-initiate the form error set up with the new HTMLID and Spam Protection field (if applies).
         $form->restoreFormState();
-        
+
         $this->extend('updateSignupForm', $form);
 
         return $form;
     }
-    
+
     private function getMailchimpMergeFields()
     {
         if (!$this->APIKey || !$this->ListID) {
             user_error("MailChimp API key or list ID is missing", E_USER_WARNING);
             return false;
         }
-        
+
         $loader = MailchimpDataLoader::getInstance($this->APIKey, $this->ListID);
         return $loader->getMergeFields();
-        
+
     }
-    
+
     private function getMailchimpCategories()
     {
         if (!$this->APIKey || !$this->ListID) {
             user_error("MailChimp API key or list ID is missing", E_USER_WARNING);
             return false;
         }
-        
+
         $loader = MailchimpDataLoader::getInstance($this->APIKey, $this->ListID);
         return $loader->getCategories();
     }
-    
+
+    private function getUsesEmailTypeOptions()
+    {
+        if (!$this->APIKey || !$this->ListID) {
+            user_error("MailChimp API key or list ID is missing", E_USER_WARNING);
+            return false;
+        }
+
+        $loader = MailchimpDataLoader::getInstance($this->APIKey, $this->ListID);
+        return $loader->getUsesEmailTypeOptions();
+    }
+
     public function subscribe($data, $form)
     {
         $result = $this->doSubscription($data);
@@ -418,16 +446,16 @@ class SignupPageController extends PageController {
                     }
                 }
             }
-            
+
             // same for groups
             $aGroups = [];
             $groupInfo = $this->getMailchimpCategories();
             if ($groupInfo) {
                 foreach ($groupInfo as $group) {
-                    
+
                     // get options
                     $groupOptions = $group['options'];
-                    
+
                     if ($groupOptions && isset($groupOptions['interests'])) {
                         // get submitted data
                         if (is_array($data['groupings_' . $group['id']])) {
