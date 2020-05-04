@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [4.6.1]
+
+* update jQuery to 3.5.0
+
 ## [4.6.0]
 
 * improve data loader calls
