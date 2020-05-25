@@ -286,7 +286,7 @@ class SignupPageController extends PageController {
         }
 
         $actions = FieldList::create(
-            FormAction::create('subscribe', _t('Innoweb\\MailChimpSignup\\Model\\SignupPage.SUBSCRIBE', 'subscribe'))
+            FormAction::create('subscribe', _t('Innoweb\\MailChimpSignup\\Model\\SignupPage.SUBSCRIBE', 'Subscribe'))
         );
 
         $form = Form::create(
