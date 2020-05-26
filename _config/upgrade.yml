@@ -1,0 +1,5 @@
+SilverStripe\ORM\DatabaseAdmin:
+  classname_value_remapping:
+    MailChimpCampaign: Innoweb\MailChimpSignup\Model\Campaign
+    MailChimpCampaignListPage: Innoweb\MailChimpSignup\Pages\CampaignListPage
+    MailChimpSignupPage: Innoweb\MailChimpSignup\Pages\SignupPage

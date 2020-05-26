@@ -1,0 +1,7 @@
+mappings:
+  MailChimpCampaign: Innoweb\MailChimpSignup\Model\Campaign
+  MailChimpCampaignListPage: Innoweb\MailChimpSignup\Pages\CampaignListPage
+  MailChimpCampaignListPage_Controller: Innoweb\MailChimpSignup\Pages\CampaignListPageController
+  MailChimpSignupPage: Innoweb\MailChimpSignup\Pages\SignupPage
+  MailChimpSignupPage_Controller: Innoweb\MailChimpSignup\Pages\SignupPageController
+  
