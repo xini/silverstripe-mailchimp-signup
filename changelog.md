@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [4.6.3]
+
+* Use title case in Subscribe button for consistency with other form field labels
+
 ## [4.6.2]
 
 * add missing upgrade configs
