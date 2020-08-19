@@ -9,8 +9,8 @@
   "author": "Florian Thoma",
   "license": "BSD-3-Clause",
   "dependencies": {
-    "jquery": "^3.5.0",
-    "jquery-validation": "^1.19.1"
+    "jquery": "^3.5.1",
+    "jquery-validation": "^1.19.2"
   },
   "devDependencies": {
     "del": "^5.1.0",
