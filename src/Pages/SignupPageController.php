@@ -4,8 +4,10 @@ namespace Innoweb\MailChimpSignup\Pages;
 
 use DrewM\MailChimp\MailChimp;
 use Innoweb\MailChimpSignup\MailchimpDataLoader;
+use Innoweb\MailChimpSignup\Forms\SignupPageValidator;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Forms\CheckboxSetField;
+use SilverStripe\Forms\CompositeField;
 use SilverStripe\Forms\DateField;
 use SilverStripe\Forms\DropdownField;
 use SilverStripe\Forms\EmailField;
@@ -15,7 +17,6 @@ use SilverStripe\Forms\FormAction;
 use SilverStripe\Forms\LiteralField;
 use SilverStripe\Forms\NumericField;
 use SilverStripe\Forms\OptionsetField;
-use SilverStripe\Forms\RequiredFields;
 use SilverStripe\Forms\TextField;
 use SilverStripe\SpamProtection\Extension\FormSpamProtectionExtension;
 use SilverStripe\View\Requirements;
@@ -43,7 +44,7 @@ class SignupPageController extends PageController {
         $fields = FieldList::create();
 
         // create validator with default email field
-        $validator = RequiredFields::create('EMAIL');
+        $validator = SignupPageValidator::create('EMAIL');
 
         $emailAdded = false;
 
@@ -82,7 +83,6 @@ class SignupPageController extends PageController {
                     switch ($field['type']) {
 
                         case 'text':
-						case 'address':
 							if ($field['tag'] == 'EMAIL') {
 								$newField = EmailField::create(
 									$field['tag'],
@@ -129,6 +129,7 @@ class SignupPageController extends PageController {
                             )->setAttribute('type', 'tel');
                             break;
 
+                        case 'imageurl':
                         case 'url':
                             $newField = TextField::create(
                                 $field['tag'],
@@ -164,6 +165,36 @@ class SignupPageController extends PageController {
                                 $field['name'],
                                 $optionSet
                             );
+                            break;
+
+                        case 'zip':
+                            $newField = TextField::create(
+                                $field['tag'],
+                                $field['name'],
+                                $field['default_value'],
+                                10
+                            );
+                            break;
+
+                        case 'address':
+                            $newField = CompositeField::create(
+                                TextField::create($field['tag'].'_addr1', _t("MailChimpSignupPage.AddressLine1", 'Street Address'), null, 255),
+                                TextField::create($field['tag'].'_addr2', _t("MailChimpSignupPage.AddressLine2", 'Unit/Floor'), null, 255),
+                                TextField::create($field['tag'].'_city', _t("MailChimpSignupPage.City", 'City'), null, 50),
+                                TextField::create($field['tag'].'_state', _t("MailChimpSignupPage.State", 'State/Province'), null, 50),
+                                TextField::create($field['tag'].'_zip', _t("MailChimpSignupPage.ZipCode", 'Zip/Post Code'), null, 20),
+                                TextField::create($field['tag'].'_country', _t("MailChimpSignupPage.Country", 'Country'), null, 50)
+                            )->setLegend($field['name'])->setTag('fieldset');
+                            // add required fields
+                            if ($field['required']) {
+                                $validator->addRequiredField($field['tag'].'_addr1');
+                                $validator->addRequiredField($field['tag'].'_city');
+                                $validator->addRequiredField($field['tag'].'_state');
+                                $validator->addRequiredField($field['tag'].'_zip');
+                                $validator->addRequiredField($field['tag'].'_country');
+                            } else {
+                                $validator->addAddressField($field['tag']);
+                            }
                             break;
 
                         default:
@@ -439,8 +470,32 @@ class SignupPageController extends PageController {
                 $fieldData = $listInfo['merge_fields'];
                 foreach ($fieldData as $field) {
                     if ($field['public']) {
-                        // add value from field
-                        if (isset($data[$field['tag']])) {
+                        if ($field['type'] == 'address') {
+                            // if field type is address, get data from multiple addess fields
+                            $addressData = array();
+                            if (isset($data[$field['tag'].'_addr1']) && strlen($data[$field['tag'].'_addr1']) > 0) {
+                                $addressData['addr1'] = $data[$field['tag'].'_addr1'];
+                            }
+                            if (isset($data[$field['tag'].'_addr2']) && strlen($data[$field['tag'].'_addr2']) > 0) {
+                                $addressData['addr2'] = $data[$field['tag'].'_addr2'];
+                            }
+                            if (isset($data[$field['tag'].'_city']) && strlen($data[$field['tag'].'_city']) > 0) {
+                                $addressData['city'] = $data[$field['tag'].'_city'];
+                            }
+                            if (isset($data[$field['tag'].'_state']) && strlen($data[$field['tag'].'_state']) > 0) {
+                                $addressData['state'] = $data[$field['tag'].'_state'];
+                            }
+                            if (isset($data[$field['tag'].'_zip']) && strlen($data[$field['tag'].'_zip']) > 0) {
+                                $addressData['zip'] = $data[$field['tag'].'_zip'];
+                            }
+                            if (isset($data[$field['tag'].'_country']) && strlen($data[$field['tag'].'_country']) > 0) {
+                                $addressData['country'] = $data[$field['tag'].'_country'];
+                            }
+                            if (count($addressData) > 0) {
+                                $mergeVars[$field['tag']] = $addressData;
+                            }
+                        } else if (isset($data[$field['tag']])) {
+                            // add value from field
                             $mergeVars[$field['tag']] = $data[$field['tag']];
                         }
                     }

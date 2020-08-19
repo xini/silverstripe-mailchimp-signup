@@ -7,6 +7,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## [4.7.0]
 
 * Update jQuery to 3.5.1 and jQuery Validation to 1.19.2
+* add support for Mailchimp address fields 
 
 ## [4.6.3]
 
