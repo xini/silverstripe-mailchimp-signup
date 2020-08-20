@@ -3,7 +3,7 @@ name: mailchimp_cache
 After:
   - '#corecache'
 ---
-Innoweb\MailChimpSignup\Pages\SignupPage:
+Innoweb\MailChimpSignup\MailchimpDataLoader:
   field_cache_seconds: 300
 
 SilverStripe\Core\Injector\Injector:

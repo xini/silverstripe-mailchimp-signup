@@ -8,6 +8,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 * Update jQuery to 3.5.1 and jQuery Validation to 1.19.2
 * add support for Mailchimp address fields 
+* move Mailchimp signup functionality to extensions so that this can be used for other objects than pages, e.g. elemental
+* add customisation hooks for success and error urls
 
 ## [4.6.3]
 

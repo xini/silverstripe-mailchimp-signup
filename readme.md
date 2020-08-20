@@ -60,7 +60,7 @@ If you keep this enabled, you need to have jQuery/validate enabled as well or lo
 The forms fields loaded from MailChimp are cached for 5 minutes by default. You can change the cache time in the config:
 
 ```
-Innoweb\MailChimpSignup\Pages\SignupPage:
+Innoweb\MailChimpSignup\MailchimpDataLoader:
   field_cache_seconds: 300
 ```
 

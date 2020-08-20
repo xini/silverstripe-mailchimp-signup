@@ -7,9 +7,12 @@ use Innoweb\MailChimpSignup\Pages\SignupPage;
 use Psr\SimpleCache\CacheInterface;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Core\Injector\Injector;
+use SilverStripe\Core\Config\Configurable;
 
 class MailchimpDataLoader
 {
+    use Configurable;
+
     private static $instances = [];
 
     private $merge_fields = null;
@@ -17,6 +20,8 @@ class MailchimpDataLoader
     private $uses_email_type_options = null;
     private $api_key = null;
     private $list_id = null;
+
+    private static $field_cache_seconds = 300;
 
     public static function getInstance($APIKey, $ListID)
     {
@@ -70,7 +75,7 @@ class MailchimpDataLoader
             }
 
             // store to cache
-            $cache->set($cacheKey, $listInfo, Config::inst()->get(SignupPage::class, 'field_cache_seconds'));
+            $cache->set($cacheKey, $listInfo, $this->config()->field_cache_seconds);
 
         } else {
             $listInfo = $cache->get($cacheKey);
@@ -114,7 +119,7 @@ class MailchimpDataLoader
                 }
 
                 // store to cache
-                $cache->set($cacheKey, $categories, Config::inst()->get(SignupPage::class, 'field_cache_seconds'));
+                $cache->set($cacheKey, $categories, $this->config()->field_cache_seconds);
 
             } else {
                 $categories = false;
@@ -151,7 +156,7 @@ class MailchimpDataLoader
 
 
                 // store to cache
-                $cache->set($cacheKey, $config, Config::inst()->get(SignupPage::class, 'field_cache_seconds'));
+                $cache->set($cacheKey, $config, $this->config()->field_cache_seconds);
 
             } else {
                 $config = false;
