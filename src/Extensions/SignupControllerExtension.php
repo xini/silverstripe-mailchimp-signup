@@ -23,9 +23,12 @@ use SilverStripe\SpamProtection\Extension\FormSpamProtectionExtension;
 use SilverStripe\View\Requirements;
 use BadMethodCallException;
 use SilverStripe\Dev\Debug;
+use SilverStripe\Core\Config\Configurable;
 
 class SignupControllerExtension extends Extension
 {
+    use Configurable;
+
     private static $allowed_actions = [
         'Form',
         'success'

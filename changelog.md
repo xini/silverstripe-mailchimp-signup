@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [4.7.1]
+
+* Fix missing config trait 
+* fix CMS field label
+
 ## [4.7.0]
 
 * Update jQuery to 3.5.1 and jQuery Validation to 1.19.2

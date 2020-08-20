@@ -49,8 +49,11 @@ class SignupDataExtension extends DataExtension
                     _t('Innoweb\\MailChimpSignup\\Extensions\\SignupDataExtension.LISTID', 'Audience ID')
                 ),
                 FieldGroup::create(
-                    CheckboxField::create('RequireEmailConfirmation', '')
-                )->setTitle(_t('Innoweb\\MailChimpSignup\\Extensions\\SignupDataExtension.RequireEmailConfirmation', 'Require Email Confirmation')),
+                    CheckboxField::create(
+                        'RequireEmailConfirmation',
+                        _t('Innoweb\\MailChimpSignup\\Extensions\\SignupDataExtension.RequireEmailConfirmation', 'Require Email Confirmation')
+                    )
+                )->setTitle(_t('Innoweb\\MailChimpSignup\\Extensions\\SignupDataExtension.EmailConfirmation', 'Email Confirmation')),
                 TextareaField::create(
                     'ContentSuccess',
                     _t('Innoweb\\MailChimpSignup\\Extensions\\SignupDataExtension.CONTENTSUCCESS', 'Text for successful submission')
