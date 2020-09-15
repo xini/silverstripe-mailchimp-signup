@@ -11,7 +11,7 @@ class SignupPageValidator extends RequiredFields
      *
      * @var array
      */
-    protected $addresses;
+    protected $addresses = [];
 
     /**
      * Adds a address field to addresses stack.
