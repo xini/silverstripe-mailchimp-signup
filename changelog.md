@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [4.7.2]
+
+* Fix form validation
+
 ## [4.7.1]
 
 * Fix missing config trait 
