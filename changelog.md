@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [4.7.3]
+
+* Fix reading of options for radio buttons and dropdowns
+* Fix format for date and birthday fields
+* Replace country text field with CountryDropdownField
+
 ## [4.7.2]
 
 * Fix form validation

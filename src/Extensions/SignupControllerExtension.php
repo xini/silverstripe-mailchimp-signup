@@ -22,8 +22,9 @@ use SilverStripe\Forms\TextField;
 use SilverStripe\SpamProtection\Extension\FormSpamProtectionExtension;
 use SilverStripe\View\Requirements;
 use BadMethodCallException;
-use SilverStripe\Dev\Debug;
 use SilverStripe\Core\Config\Configurable;
+use Dynamic\CountryDropdownField\Fields\CountryDropdownField;
+use SilverStripe\ORM\FieldType\DBDate;
 
 class SignupControllerExtension extends Extension
 {
@@ -93,7 +94,7 @@ class SignupControllerExtension extends Extension
                                     $field['name'],
                                     $field['default_value'],
                                     255
-                                    );
+                                );
                                 $emailAdded = true;
                             } else {
                                 $newField = TextField::create(
@@ -101,45 +102,45 @@ class SignupControllerExtension extends Extension
                                     $field['name'],
                                     $field['default_value'],
                                     255
-                                    );
+                                );
                             }
                             break;
 
                         case 'number':
                             $newField = NumericField::create(
-                            $field['tag'],
-                            $field['name'],
-                            $field['default_value'],
-                            255
+                                $field['tag'],
+                                $field['name'],
+                                $field['default_value'],
+                                255
                             );
                             break;
 
                         case 'date':
                         case 'birthday':
                             $newField = DateField::create(
-                            $field['tag'],
-                            $field['name'],
-                            $field['default_value'],
-                            255
+                                $field['tag'],
+                                $field['name'],
+                                $field['default_value'],
+                                255
                             );
                             break;
 
                         case 'phone':
                             $newField = TextField::create(
-                            $field['tag'],
-                            $field['name'],
-                            $field['default_value'],
-                            255
+                                $field['tag'],
+                                $field['name'],
+                                $field['default_value'],
+                                255
                             )->setAttribute('type', 'tel');
                             break;
 
                         case 'imageurl':
                         case 'url':
                             $newField = TextField::create(
-                            $field['tag'],
-                            $field['name'],
-                            $field['default_value'],
-                            255
+                                $field['tag'],
+                                $field['name'],
+                                $field['default_value'],
+                                255
                             )->setAttribute('type', 'url');
                             break;
 
@@ -147,47 +148,75 @@ class SignupControllerExtension extends Extension
 
                             // set value and key to value
                             $optionSet = [];
-                            foreach ($field['choices'] as $opt) {
+                            foreach ($field['options']['choices'] as $opt) {
                                 $optionSet[$opt] = $opt;
                             }
                             $newField = DropdownField::create(
                                 $field['tag'],
                                 $field['name'],
                                 $optionSet
-                                );
+                            );
                             break;
 
                         case 'radio':
 
                             // set value and key to value
                             $optionSet = [];
-                            foreach ($fields['choices'] as $opt) {
+                            foreach ($field['options']['choices'] as $opt) {
                                 $optionSet[$opt] = $opt;
                             }
                             $newField = OptionsetField::create(
                                 $field['tag'],
                                 $field['name'],
                                 $optionSet
-                                );
+                            );
                             break;
 
                         case 'zip':
                             $newField = TextField::create(
-                            $field['tag'],
-                            $field['name'],
-                            $field['default_value'],
-                            10
+                                $field['tag'],
+                                $field['name'],
+                                $field['default_value'],
+                                10
                             );
                             break;
 
                         case 'address':
                             $newField = CompositeField::create(
-                                TextField::create($field['tag'].'_addr1', _t("Innoweb\\MailChimpSignup\\Extension\\SignupControllerExtension.AddressLine1", 'Street Address'), null, 255),
-                                TextField::create($field['tag'].'_addr2', _t("Innoweb\\MailChimpSignup\\Extension\\SignupControllerExtension.AddressLine2", 'Unit/Floor'), null, 255),
-                                TextField::create($field['tag'].'_city', _t("Innoweb\\MailChimpSignup\\Extension\\SignupControllerExtension.City", 'City'), null, 50),
-                                TextField::create($field['tag'].'_state', _t("Innoweb\\MailChimpSignup\\Extension\\SignupControllerExtension.State", 'State/Province'), null, 50),
-                                TextField::create($field['tag'].'_zip', _t("Innoweb\\MailChimpSignup\\Extension\\SignupControllerExtension.ZipCode", 'Zip/Post Code'), null, 20),
-                                TextField::create($field['tag'].'_country', _t("Innoweb\\MailChimpSignup\\Extension\\SignupControllerExtension.Country", 'Country'), null, 50)
+                                TextField::create(
+                                    $field['tag'].'_addr1',
+                                    _t("Innoweb\\MailChimpSignup\\Extension\\SignupControllerExtension.AddressLine1", 'Street Address'),
+                                    null,
+                                    255
+                                ),
+                                TextField::create(
+                                    $field['tag'].'_addr2',
+                                    _t("Innoweb\\MailChimpSignup\\Extension\\SignupControllerExtension.AddressLine2", 'Unit/Floor'),
+                                    null,
+                                    255
+                                ),
+                                TextField::create(
+                                    $field['tag'].'_city',
+                                    _t("Innoweb\\MailChimpSignup\\Extension\\SignupControllerExtension.City", 'City'),
+                                    null,
+                                    50
+                                ),
+                                TextField::create(
+                                    $field['tag'].'_state',
+                                    _t("Innoweb\\MailChimpSignup\\Extension\\SignupControllerExtension.State", 'State/Province'),
+                                    null,
+                                    50
+                                ),
+                                TextField::create(
+                                    $field['tag'].'_zip',
+                                    _t("Innoweb\\MailChimpSignup\\Extension\\SignupControllerExtension.ZipCode", 'Zip/Post Code'),
+                                    null,
+                                    20
+                                ),
+                                CountryDropdownField::create(
+                                    $field['tag'].'_country',
+                                    _t("Innoweb\\MailChimpSignup\\Extension\\SignupControllerExtension.Country", 'Country')
+                                )->setEmptyString(_t("Innoweb\\MailChimpSignup\\Extension\\SignupControllerExtension.SELECT", '- select -'))
                             )->setLegend($field['name'])->setTag('fieldset');
                             // add required fields
                             if ($field['required']) {
@@ -516,6 +545,18 @@ class SignupControllerExtension extends Extension
                             if (count($addressData) > 0) {
                                 $mergeVars[$field['tag']] = $addressData;
                             }
+                        } else if ($field['type'] == 'date') {
+                            $formattedDate = '';
+                            if (isset($data[$field['tag']]) && strlen($data[$field['tag']]) > 0) {
+                                $formattedDate = DBDate::create()->setValue($data[$field['tag']])->Format('yyyy-MM-dd 00:00:00');
+                            }
+                            $mergeVars[$field['tag']] = $formattedDate;
+                        } else if ($field['type'] == 'birthday') {
+                            $formattedDate = '';
+                            if (isset($data[$field['tag']]) && strlen($data[$field['tag']]) > 0) {
+                                $formattedDate = DBDate::create()->setValue($data[$field['tag']])->Format('MM/dd');
+                            }
+                            $mergeVars[$field['tag']] = $formattedDate;
                         } else if (isset($data[$field['tag']])) {
                             // add value from field
                             $mergeVars[$field['tag']] = $data[$field['tag']];

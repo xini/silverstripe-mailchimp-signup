@@ -11,7 +11,8 @@
 	"require": {
 		"silverstripe/cms": "^4",
 		"drewm/mailchimp-api": "~2.0",
-		"symbiote/silverstripe-multivaluefield": "^4 || ^5"
+		"symbiote/silverstripe-multivaluefield": "^4 || ^5",
+		"dynamic/silverstripe-country-dropdown-field": "^1.2.0"
 	},
 	"autoload": {
 		"psr-4": {
