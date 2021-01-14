@@ -10,7 +10,7 @@
   "license": "BSD-3-Clause",
   "dependencies": {
     "jquery": "^3.5.1",
-    "jquery-validation": "^1.19.2"
+    "jquery-validation": "^1.19.3"
   },
   "devDependencies": {
     "del": "^5.1.0",
