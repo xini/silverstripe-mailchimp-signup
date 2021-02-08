@@ -1,18 +1,6 @@
 ---
 name: mailchimpsignup
 ---
-SilverStripe\Core\Injector\Injector:
-  MailChimpCampaignListPage:
-    class: Innoweb\MailChimpSignup\Pages\CampaignListPage
-  MailChimpCampaignListPage_Controller:
-    class: Innoweb\MailChimpSignup\Pages\CampaignListPageController
-  MailChimpSignupPage:
-    class: Innoweb\MailChimpSignup\Pages\SignupPage
-  MailChimpSignupPage_Controller:
-    class: Innoweb\MailChimpSignup\Pages\SignupPageController
-  MailChimpCampaign:
-    class: Innoweb\MailChimpSignup\Model\Campaign
-
 DrewM\MailChimp\MailChimp:
   verify_ssl: true
 

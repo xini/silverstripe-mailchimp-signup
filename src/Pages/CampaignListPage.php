@@ -4,6 +4,7 @@ namespace Innoweb\MailChimpSignup\Pages;
 
 use DrewM\MailChimp\MailChimp;
 use Innoweb\MailChimpSignup\Model\Campaign;
+use Psr\Log\LoggerInterface;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Forms\CheckboxField;
 use SilverStripe\Forms\LiteralField;
@@ -43,10 +44,10 @@ class CampaignListPage extends Page {
     ];
 
     private static $dependencies = [
-        'logger'        =>  '%$Psr\Log\LoggerInterface'
+        'Logger' => '%$' . LoggerInterface::class,
     ];
 
-    public $logger;
+    protected $logger;
 
     public function getCMSFields()
     {
@@ -76,7 +77,7 @@ class CampaignListPage extends Page {
         $fields->insertBefore('Main', $tab);
 
         $fields->addFieldToTab(
-            'Root.MailChimp',
+            'Root.Mailchimp',
             TextField::create(
                 'APIKey',
                 _t('Innoweb\\MailChimpSignup\\Model\\CampaignList.APIKEY', 'API Key')
@@ -85,7 +86,7 @@ class CampaignListPage extends Page {
 
         if (!($this->APIKey)) {
             $fields->addFieldToTab(
-                'Root.MailChimp',
+                'Root.Mailchimp',
                 LiteralField::create(
                     'APIKeyInfo',
                     '<p>'
@@ -114,7 +115,7 @@ class CampaignListPage extends Page {
                 }
 
                 $fields->addFieldsToTab(
-                    'Root.MailChimp',
+                    'Root.Mailchimp',
                     [
                         // add list filter
                         MultiValueDropdownField::create(
@@ -154,7 +155,7 @@ class CampaignListPage extends Page {
                     $message .= ' (last error: '.$mailChimp->getLastError().')';
                 }
                 $fields->addFieldToTab(
-                    'Root.MailChimp',
+                    'Root.Mailchimp',
                     LiteralField::create('APIKeyInfo', '<p>'.$message.'</p>')
                 );
             }
@@ -201,7 +202,7 @@ class CampaignListPage extends Page {
                     $this->loadCampaigns();
 
                     // Save the time the update was performed
-                    $this->LastUpdate = DBDatetime::now()->value;
+                    $this->LastUpdated = DBDatetime::now()->value;
                     if (!$onWrite) {
                         $this->write();
                     }
@@ -230,13 +231,14 @@ class CampaignListPage extends Page {
                     . 'campaigns.recipients.segment_opts'
             ]
         );
+
         if ($campaigns && isset($campaigns['campaigns'])) {
             foreach($campaigns['campaigns'] as $campaign) {
 
                 $mcID = $this->processCampaign($campaign);
 
                 if ($mcID) {
-                    $campaignsIDs[] = $mcID;
+                    $campaignIDs[] = $mcID;
                 }
             }
         } else {
@@ -273,7 +275,10 @@ class CampaignListPage extends Page {
 
             // check if campaign already exists
             $campaign = Campaign::get()
-                ->filter('MailChimpID', $campaignData['id'])
+                ->filter([
+                    'PageID' => $this->ID,
+                    'MailChimpID' => $campaignData['id'],
+                ])
                 ->first();
 
             if ($campaign && $campaign->exists()) {
@@ -312,5 +317,15 @@ class CampaignListPage extends Page {
         }
 
         return null;
+    }
+
+    /**
+     * @param LoggerInterface $logger
+     * @return $this
+     */
+    public function setLogger(LoggerInterface $logger)
+    {
+        $this->logger = $logger;
+        return $this;
     }
 }
