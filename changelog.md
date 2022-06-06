@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [4.7.7]
+
+* update npm dependencies
+
 ## [4.7.6]
 
 * update npm dependencies
