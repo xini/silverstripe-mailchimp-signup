@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [4.8.0]
+
+* don't log errors if they come from Mailchimp spam filter
+* use SS logger instead of user_error
+
 ## [4.7.10]
 
 * build frontend
