@@ -5,8 +5,10 @@ namespace Innoweb\MailChimpSignup\Extensions;
 use DrewM\MailChimp\MailChimp;
 use Innoweb\MailChimpSignup\MailchimpDataLoader;
 use Innoweb\MailChimpSignup\Forms\SignupPageValidator;
+use Psr\Log\LoggerInterface;
 use SilverStripe\Core\Extension;
 use SilverStripe\Core\Config\Config;
+use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Forms\CheckboxSetField;
 use SilverStripe\Forms\CompositeField;
 use SilverStripe\Forms\DateField;
@@ -400,7 +402,7 @@ class SignupControllerExtension extends Extension
     public function getMailchimpMergeFields()
     {
         if (!$this->getOwner()->data()->APIKey || !$this->getOwner()->data()->ListID) {
-            user_error("MailChimp API key or list ID is missing", E_USER_WARNING);
+            Injector::inst()->get(LoggerInterface::class)->warning("MailChimp API key or list ID is missing");
             return false;
         }
 
@@ -415,7 +417,7 @@ class SignupControllerExtension extends Extension
     public function getMailchimpCategories()
     {
         if (!$this->getOwner()->data()->APIKey || !$this->getOwner()->data()->ListID) {
-            user_error("MailChimp API key or list ID is missing", E_USER_WARNING);
+            Injector::inst()->get(LoggerInterface::class)->warning("MailChimp API key or list ID is missing");
             return false;
         }
 
@@ -430,7 +432,7 @@ class SignupControllerExtension extends Extension
     public function getUsesEmailTypeOptions()
     {
         if (!$this->getOwner()->data()->APIKey || !$this->getOwner()->data()->ListID) {
-            user_error("MailChimp API key or list ID is missing", E_USER_WARNING);
+            Injector::inst()->get(LoggerInterface::class)->warning("MailChimp API key or list ID is missing");
             return false;
         }
 
@@ -638,10 +640,10 @@ class SignupControllerExtension extends Extension
                 $returnData['type'] = 'good';
                 $returnData['message'] = $this->getOwner()->data()->ContentSuccess;
 
-            } else {
-                user_error('Last Error: ' . print_r($mailChimp->getLastError(), true), E_USER_WARNING);
-                user_error('Last Request: ' . print_r($mailChimp->getLastRequest(), true), E_USER_WARNING);
-                user_error('Last Response: ' . print_r($mailChimp->getLastResponse(), true), E_USER_WARNING);
+            } else if (strpos($mailChimp->getLastError(), 'has signed up to a lot of lists very recently') === false) {
+                Injector::inst()->get(LoggerInterface::class)->warning('Last Error: ' . print_r($mailChimp->getLastError(), true));
+                Injector::inst()->get(LoggerInterface::class)->warning('Last Request: ' . print_r($mailChimp->getLastRequest(), true));
+                Injector::inst()->get(LoggerInterface::class)->warning('Last Response: ' . print_r($mailChimp->getLastResponse(), true));
             }
         }
 
@@ -665,5 +667,4 @@ class SignupControllerExtension extends Extension
         call_user_func_array('array_multisort', $args);
         return array_pop($args);
     }
-
 }
