@@ -9,10 +9,10 @@
 		"homepage": "http://www.innoweb.com.au"
 	}],
 	"require": {
-		"silverstripe/cms": "^4",
+		"silverstripe/cms": "^5",
 		"drewm/mailchimp-api": "~2.0",
-		"symbiote/silverstripe-multivaluefield": "^4 || ^5",
-		"dynamic/silverstripe-country-dropdown-field": "^1.2.0"
+		"symbiote/silverstripe-multivaluefield": "^6",
+		"dynamic/silverstripe-country-dropdown-field": "^2"
 	},
 	"autoload": {
 		"psr-4": {
@@ -23,15 +23,6 @@
 		"expose": [
 			"client/dist",
 			"client/images"
-		],
-		"branch-alias": {
-			"dev-master": "4.0.x-dev"
-		}
-	},
-	"config": {
-		"vendor-dir": "vendor",
-		"process-timeout": 600
-	},
-	"prefer-stable": true,
-	"minimum-stability": "dev"	
+		]
+	}
 }
