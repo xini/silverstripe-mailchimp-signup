@@ -11,11 +11,13 @@ The submissions need to be confirmed by the user, they receives a confirmation e
 
 ## Requirements
 
-* SilverStripe CMS 4.x
-* [symbiote/silverstripe-multivaluefield ^4,^5](https://packagist.org/packages/symbiote/silverstripe-multivaluefield)
+* SilverStripe CMS 5
+* [symbiote/silverstripe-multivaluefield ^6](https://packagist.org/packages/symbiote/silverstripe-multivaluefield)
 * [drewm/mailchimp-api ~2.0](https://packagist.org/packages/drewm/mailchimp-api)
 
-Note: this version is compatible with SilverStripe 4. For SilverStripe 3, please see the [3.x release line](https://github.com/xini/silverstripe-mailchimp-signup/tree/3.0.2).
+Note: this version is compatible with SilverStripe 5. 
+For SilverStripe 4, please see the [4 release line](https://github.com/xini/silverstripe-mailchimp-signup/tree/4).
+For SilverStripe 3, please see the [3.x release line](https://github.com/xini/silverstripe-mailchimp-signup/tree/3.0).
 
 ## Installation
 
@@ -23,7 +25,6 @@ Install the module using composer:
 ```
 composer require innoweb/silverstripe-mailchimp-signup dev-master
 ```
-or download or git clone the module into a ‘mailchimp-signup’ directory in your webroot.
 
 Then run dev/build.
 
