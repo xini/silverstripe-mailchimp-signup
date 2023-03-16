@@ -4,6 +4,7 @@ namespace Innoweb\MailChimpSignup;
 
 use DrewM\MailChimp\MailChimp;
 use Innoweb\MailChimpSignup\Pages\SignupPage;
+use Psr\Log\LoggerInterface;
 use Psr\SimpleCache\CacheInterface;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Core\Injector\Injector;
@@ -69,7 +70,7 @@ class MailchimpDataLoader
                 if ($mailChimp->getLastRequest()) {
                     $message .= ' (last reguest: '.print_r($mailChimp->getLastRequest(), true).')';
                 }
-                user_error($message, E_USER_WARNING);
+                Injector::inst()->get(LoggerInterface::class)->warning($message);
 
                 return false;
             }
