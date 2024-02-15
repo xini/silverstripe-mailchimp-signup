@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [5.1.1]
+
+* fix issue when interests are displayed as checkboxes and are submitted empty
+
 ## [5.1.0]
 
 * don't log errors if they come from Mailchimp spam filter

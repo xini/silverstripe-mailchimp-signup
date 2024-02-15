@@ -578,10 +578,13 @@ class SignupControllerExtension extends Extension
 
                     if ($groupOptions && isset($groupOptions['interests'])) {
                         // get submitted data
-                        if (is_array($data['groupings_' . $group['id']])) {
-                            $submittedGroups = $data['groupings_' . $group['id']];
-                        } else {
-                            $submittedGroups = [$data['groupings_' . $group['id']]];
+                        $submittedGroups = [];
+                        if (isset($data['groupings_' . $group['id']])) {
+                            if (is_array($data['groupings_' . $group['id']])) {
+                                $submittedGroups = $data['groupings_' . $group['id']];
+                            } else {
+                                $submittedGroups = [$data['groupings_' . $group['id']]];
+                            }
                         }
                         // init group array
                         foreach ($groupOptions['interests'] as $option) {
