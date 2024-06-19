@@ -1,25 +1,37 @@
 {
-  "name": "mailchimp-signup",
-  "version": "2.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "Florian Thoma",
-  "license": "BSD-3-Clause",
-  "dependencies": {
-    "jquery": "^3.6.0",
-    "jquery-validation": "^1.19.5"
-  },
-  "devDependencies": {
-    "del": "^5.1.0",
-    "gulp": "^5.0.0",
-    "gulp-concat": "^2.6.0",
-    "gulp-hash": "^4.1.1",
-    "gulp-sourcemaps": "^2.6.5",
-    "gulp-strip-debug": "^3.0.0",
-    "gulp-uglify": "^3.0.1",
-    "gulp-plumber": "^1.2.1"
-  }
+    "name": "mailchimp-signup",
+    "version": "2.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "build": "gulp",
+        "debug": "gulp debug"
+    },
+    "author": "Florian Thoma",
+    "license": "BSD-3-Clause",
+    "dependencies": {
+        "jquery": "^3.7.1",
+        "jquery-validation": "^1.20.1"
+    },
+    "devDependencies": {
+        "@rollup/plugin-commonjs": "^26.0.1",
+        "@rollup/plugin-node-resolve": "^15.2.3",
+        "del": "^7.1.0",
+        "gulp": "^5.0.0",
+        "gulp-best-rollup-2": "^5.0.3",
+        "gulp-if": "^3.0.0",
+        "gulp-plumber": "^1.2.1",
+        "gulp-sourcemaps": "^3.0.0",
+        "gulp-strip-debug": "^6.0.0",
+        "gulp-uglify": "^3.0.2"
+    },
+    "engines": {
+        "node": "^18.0.0"
+    },
+    "browserslist": [
+        "> 1%",
+        "last 5 versions",
+        "Firefox ESR",
+        "not dead"
+    ]
 }
