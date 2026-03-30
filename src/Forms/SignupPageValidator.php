@@ -2,9 +2,10 @@
 
 namespace Innoweb\MailChimpSignup\Forms;
 
-use SilverStripe\Forms\RequiredFields;
+use SilverStripe\Forms\Validation\RequiredFieldsValidator;
+use Override;
 
-class SignupPageValidator extends RequiredFields
+class SignupPageValidator extends RequiredFieldsValidator
 {
     /**
      * List of address fields
@@ -30,6 +31,7 @@ class SignupPageValidator extends RequiredFields
     /**
      * Ensures address fields are validated
      */
+    #[Override]
     public function php($data)
     {
         $valid = parent::php($data);
@@ -39,12 +41,12 @@ class SignupPageValidator extends RequiredFields
             foreach ($this->addresses as $addressField) {
                 // check if any of the address fields have data set
                 if (
-                    (isset($data[$addressField.'_addr1']) && strlen($data[$addressField.'_addr1']) > 0)
-                    || (isset($data[$addressField.'_addr2']) && strlen($data[$addressField.'_addr2']) > 0)
-                    || (isset($data[$addressField.'_city']) && strlen($data[$addressField.'_city']) > 0)
-                    || (isset($data[$addressField.'_state']) && strlen($data[$addressField.'_state']) > 0)
-                    || (isset($data[$addressField.'_zip']) && strlen($data[$addressField.'_zip']) > 0)
-                    || (isset($data[$addressField.'_country']) && strlen($data[$addressField.'_country']) > 0)
+                    (isset($data[$addressField.'_addr1']) && (string) $data[$addressField.'_addr1'] !== '')
+                    || (isset($data[$addressField.'_addr2']) && (string) $data[$addressField.'_addr2'] !== '')
+                    || (isset($data[$addressField.'_city']) && (string) $data[$addressField.'_city'] !== '')
+                    || (isset($data[$addressField.'_state']) && (string) $data[$addressField.'_state'] !== '')
+                    || (isset($data[$addressField.'_zip']) && (string) $data[$addressField.'_zip'] !== '')
+                    || (isset($data[$addressField.'_country']) && (string) $data[$addressField.'_country'] !== '')
                 ) {
                     // if any of the dependent fields are empty, add an error message
                     if (!isset($data[$addressField.'_addr1']) || strlen($data[$addressField.'_addr1']) < 1) {
@@ -58,6 +60,7 @@ class SignupPageValidator extends RequiredFields
                         );
                         $valid = false;
                     }
+
                     if (!isset($data[$addressField.'_city']) || strlen($data[$addressField.'_city']) < 1) {
                         $this->validationError(
                             $addressField.'_city',
@@ -69,6 +72,7 @@ class SignupPageValidator extends RequiredFields
                         );
                         $valid = false;
                     }
+
                     if (!isset($data[$addressField.'_state']) || strlen($data[$addressField.'_state']) < 1) {
                         $this->validationError(
                             $addressField.'_state',
@@ -80,6 +84,7 @@ class SignupPageValidator extends RequiredFields
                         );
                         $valid = false;
                     }
+
                     if (!isset($data[$addressField.'_zip']) || strlen($data[$addressField.'_zip']) < 1) {
                         $this->validationError(
                             $addressField.'_zip',
@@ -91,6 +96,7 @@ class SignupPageValidator extends RequiredFields
                         );
                         $valid = false;
                     }
+
                     if (!isset($data[$addressField.'_country']) || strlen($data[$addressField.'_country']) < 1) {
                         $this->validationError(
                             $addressField.'_country',

@@ -1,28 +1,35 @@
 {
-	"name": "innoweb/silverstripe-mailchimp-signup",
-	"description": "Adds page type for a MailChimp signup form. Form fields are read automatically from the MailChimp list.",
-	"type": "silverstripe-vendormodule",
-	"license": "BSD-3-Clause",
-	"keywords": ["silverstripe", "mailchimp", "newsletter", "signup"],
-	"authors": [{
-		"name": "Florian Thoma",
-		"homepage": "http://www.innoweb.com.au"
-	}],
-	"require": {
-		"silverstripe/cms": "^5",
-		"drewm/mailchimp-api": "~2.0",
-		"symbiote/silverstripe-multivaluefield": "^6",
-		"dynamic/silverstripe-country-dropdown-field": "^2"
-	},
-	"autoload": {
-		"psr-4": {
-			"Innoweb\\MailChimpSignup\\": "src/"
-		}
-	},
-	"extra": {
-		"expose": [
-			"client/dist",
-			"client/images"
-		]
-	}
+    "name": "innoweb/silverstripe-mailchimp-signup",
+    "description": "Adds page type for a MailChimp signup form. Form fields are read automatically from the MailChimp list.",
+    "type": "silverstripe-vendormodule",
+    "license": "BSD-3-Clause",
+    "keywords": [
+        "silverstripe",
+        "mailchimp",
+        "newsletter",
+        "signup"
+    ],
+    "authors": [
+        {
+            "name": "Florian Thoma",
+            "homepage": "http://www.innoweb.com.au"
+        }
+    ],
+    "require": {
+        "silverstripe/cms": "^6.0",
+        "drewm/mailchimp-api": "~2.0",
+        "symbiote/silverstripe-multivaluefield": "^7.0",
+        "dynamic/silverstripe-country-dropdown-field": "^3.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Innoweb\\MailChimpSignup\\": "src/"
+        }
+    },
+    "extra": {
+        "expose": [
+            "client/dist",
+            "client/images"
+        ]
+    }
 }
