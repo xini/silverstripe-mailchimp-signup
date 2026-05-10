@@ -5,8 +5,8 @@ namespace Innoweb\MailChimpSignup\Pages;
 use Page;
 use Innoweb\MailChimpSignup\Extensions\SignupDataExtension;
 
-class SignupPage extends Page {
-
+class SignupPage extends Page
+{
     private static $singular_name = 'MailChimp Signup Form';
 
     private static $plural_name = 'MailChimp Signup Forms';
@@ -16,6 +16,8 @@ class SignupPage extends Page {
     private static $icon = 'innoweb/silverstripe-mailchimp-signup:client/images/treeicons/page-mailchimp.png';
 
     private static $table_name = 'MailChimpSignupPage';
+
+    private static string $cms_icon_class = 'font-icon-block-form';
 
     private static $extensions = [
         SignupDataExtension::class

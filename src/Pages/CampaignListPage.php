@@ -19,8 +19,8 @@ use SilverStripe\ORM\FieldType\DBDatetime;
 use Symbiote\MultiValueField\Fields\MultiValueDropdownField;
 use Page;
 
-class CampaignListPage extends Page {
-
+class CampaignListPage extends Page
+{
     private static $singular_name = 'MailChimp Campaign List Page';
 
     private static $plural_name = 'MailChimp Campaign List Pages';
@@ -30,6 +30,8 @@ class CampaignListPage extends Page {
     private static $icon = 'innoweb/silverstripe-mailchimp-signup:client/images/treeicons/page-mailchimp.png';
 
     private static $table_name = 'MailChimpSignupCampaignListPage';
+
+    private static $cms_icon_class = 'font-icon-menu-campaigns';
 
     private static $db = [
         'APIKey'                =>  'Varchar(255)',
@@ -270,7 +272,7 @@ class CampaignListPage extends Page {
         );
 
         if ($campaigns && isset($campaigns['campaigns'])) {
-            foreach($campaigns['campaigns'] as $campaign) {
+            foreach ($campaigns['campaigns'] as $campaign) {
 
                 $mcID = $this->processCampaign($campaign);
 
