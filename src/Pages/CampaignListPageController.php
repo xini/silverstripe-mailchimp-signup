@@ -27,9 +27,10 @@ class CampaignListPageController extends PageController {
             'PageID'    =>  $page->ID
         ];
         $listIDs = $page->dbObject('ListIDs')->getValue();
-        if ($listIDs && is_array($listIDs) && count($listIDs) > 0) {
+        if ($listIDs && is_array($listIDs) && $listIDs !== []) {
             $filter['ListID'] = $listIDs;
         }
+
         if ($page->HideSentToSegments) {
             $filter['SentToSegment'] = false;
         }

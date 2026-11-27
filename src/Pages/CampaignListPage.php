@@ -2,6 +2,7 @@
 
 namespace Innoweb\MailChimpSignup\Pages;
 
+use DateTime;
 use DrewM\MailChimp\MailChimp;
 use Innoweb\MailChimpSignup\Model\Campaign;
 use Psr\Log\LoggerInterface;
@@ -18,14 +19,19 @@ use SilverStripe\ORM\FieldType\DBDatetime;
 use Symbiote\MultiValueField\Fields\MultiValueDropdownField;
 use Page;
 
-class CampaignListPage extends Page {
-
+class CampaignListPage extends Page
+{
     private static $singular_name = 'MailChimp Campaign List Page';
+
     private static $plural_name = 'MailChimp Campaign List Pages';
+
     private static $description = 'Page listing selected MailChimp campaigns.';
+
     private static $icon = 'innoweb/silverstripe-mailchimp-signup:client/images/treeicons/page-mailchimp.png';
 
     private static $table_name = 'MailChimpSignupCampaignListPage';
+
+    private static $cms_icon_class = 'font-icon-menu-campaigns';
 
     private static $db = [
         'APIKey'                =>  'Varchar(255)',
@@ -47,11 +53,40 @@ class CampaignListPage extends Page {
         'Logger' => '%$' . LoggerInterface::class,
     ];
 
+    private static array $scaffold_cms_fields_settings = [
+        'ignoreFields' => [
+            'LastUpdated',
+        ],
+        'ignoreRelations' => [
+            'Campaigns',
+        ],
+    ];
+
     protected $logger;
 
     public function getCMSFields()
     {
         $fields = parent::getCMSFields();
+
+        $apiKeyField = $fields->dataFieldByName('APIKey');
+        if ($apiKeyField) {
+            $fields->removeByName('APIKey');
+        }
+
+        $listField = $fields->dataFieldByName('ListIDs');
+        if ($listField) {
+            $fields->removeByName('ListIDs');
+        }
+
+        $segmentField = $fields->dataFieldByName('HideSentToSegments');
+        if ($segmentField) {
+            $fields->removeByName('HideSentToSegments');
+        }
+
+        $limitField = $fields->dataFieldByName('Limit');
+        if ($limitField) {
+            $fields->removeByName('Limit');
+        }
 
         $campConf = GridFieldConfig_RecordEditor::create(20);
         $campConf
@@ -76,13 +111,15 @@ class CampaignListPage extends Page {
 
         $fields->insertBefore('Main', $tab);
 
-        $fields->addFieldToTab(
-            'Root.Mailchimp',
-            TextField::create(
+        $apiKeyField = $apiKeyField
+            ?? TextField::create(
                 'APIKey',
                 _t('Innoweb\\MailChimpSignup\\Model\\CampaignList.APIKEY', 'API Key')
-            )
+            );
+        $apiKeyField->setTitle(
+            _t('Innoweb\\MailChimpSignup\\Model\\CampaignList.APIKEY', 'API Key')
         );
+        $fields->addFieldToTab('Root.Mailchimp', $apiKeyField);
 
         if (!($this->APIKey)) {
             $fields->addFieldToTab(
@@ -109,41 +146,47 @@ class CampaignListPage extends Page {
             if ($lists && isset($lists['lists'])) {
 
                 // build list source array
-                $listSource = array();
-                for ($pos = 0; $pos < count($lists['lists']); $pos++) {
+                $listSource = [];
+                $counter = count($lists['lists']);
+                for ($pos = 0; $pos < $counter; $pos++) {
                     $listSource[$lists['lists'][$pos]['id']] = $lists['lists'][$pos]['name'];
                 }
+
+                if (!($listField instanceof MultiValueDropdownField)) {
+                    $listField = MultiValueDropdownField::create('ListIDs');
+                }
+                $listField->setSource($listSource);
+                $listField->setTitle(
+                    _t(
+                        'Innoweb\\MailChimpSignup\\Model\\CampaignListPage.LimitByLists',
+                        'Only show campaigns sent to the following audiences'
+                    )
+                );
+
+                $segmentField = $segmentField
+                    ?? CheckboxField::create('HideSentToSegments');
+                $segmentField->setTitle(
+                    _t(
+                        'Innoweb\\MailChimpSignup\\Model\\CampaignListPage.HideSentToSegments',
+                        'Hide campaigns sent to segments of an audience'
+                    )
+                );
+
+                $limitField = $limitField
+                    ?? NumericField::create('Limit');
+                $limitField->setTitle(
+                    _t(
+                        'Innoweb\\MailChimpSignup\\Model\\CampaignListPage.Limit',
+                        'Limit campaigns shown (0 = all)'
+                    )
+                );
 
                 $fields->addFieldsToTab(
                     'Root.Mailchimp',
                     [
-                        // add list filter
-                        MultiValueDropdownField::create(
-                            'ListIDs',
-                            _t(
-                                'Innoweb\\MailChimpSignup\\Model\\CampaignListPage.LimitByLists',
-                                'Only show campaigns sent to the following audiences'
-                            ),
-                            $listSource
-                        ),
-
-                        // add segment checkbox
-                        CheckboxField::create(
-                            'HideSentToSegments',
-                            _t(
-                                'Innoweb\\MailChimpSignup\\Model\\CampaignListPage.HideSentToSegments',
-                                'Hide campaigns sent to segments of an audience'
-                            )
-                        ),
-
-                        // add segment checkbox
-                        NumericField::create(
-                            'Limit',
-                            _t(
-                                'Innoweb\\MailChimpSignup\\Model\\CampaignListPage.Limit',
-                                'Limit campaigns shown (0 = all)'
-                            )
-                        )
+                        $listField,
+                        $segmentField,
+                        $limitField,
                     ]
                 );
 
@@ -151,9 +194,10 @@ class CampaignListPage extends Page {
                 $message = "An error occurred.";
                 if ($lists && isset($lists['status']) && isset($lists['title']) && isset($lists['detail'])) {
                     $message .= ' ('.$lists['status'].': '.$lists['title'].': '.$lists['detail'].')';
-                } else if ($mailChimp->getLastError()) {
+                } elseif ($mailChimp->getLastError()) {
                     $message .= ' (last error: '.$mailChimp->getLastError().')';
                 }
+
                 $fields->addFieldToTab(
                     'Root.Mailchimp',
                     LiteralField::create('APIKeyInfo', '<p>'.$message.'</p>')
@@ -184,28 +228,23 @@ class CampaignListPage extends Page {
 
     public function updateCampaigns($onWrite = false)
     {
-        if ($this->APIKey) {
+        if ($this->APIKey && ($onWrite || Config::inst()->get(CampaignListPage::class, 'auto_update'))) {
+            $lastUpdated = $this->LastUpdated;
+            $updateInterval = Config::inst()->get(CampaignListPage::class, 'update_interval');
+            if ($lastUpdated) {
+                // get next time we should update
+                $nextUpdateTime = strtotime($lastUpdated . ' +' . $updateInterval . ' seconds');
+            }
 
-            if ($onWrite || Config::inst()->get(CampaignListPage::class, 'auto_update')) {
+            // If we haven't auto-updated before (fresh install), or an update is due, do update
+            if ($onWrite || !isset($nextUpdateTime) || $nextUpdateTime < time()) {
 
-                $lastUpdated = $this->LastUpdated;
-                $updateInterval = Config::inst()->get(CampaignListPage::class, 'update_interval');
+                $this->loadCampaigns();
 
-                if ($lastUpdated) {
-                    // get next time we should update
-                    $nextUpdateTime = strtotime($lastUpdated . ' +' . $updateInterval . ' seconds');
-                }
-
-                // If we haven't auto-updated before (fresh install), or an update is due, do update
-                if ($onWrite || !isset($nextUpdateTime) || $nextUpdateTime < time()) {
-
-                    $this->loadCampaigns();
-
-                    // Save the time the update was performed
-                    $this->LastUpdated = DBDatetime::now()->value;
-                    if (!$onWrite) {
-                        $this->write();
-                    }
+                // Save the time the update was performed
+                $this->LastUpdated = DBDatetime::now()->value;
+                if (!$onWrite) {
+                    $this->write();
                 }
             }
         }
@@ -233,7 +272,7 @@ class CampaignListPage extends Page {
         );
 
         if ($campaigns && isset($campaigns['campaigns'])) {
-            foreach($campaigns['campaigns'] as $campaign) {
+            foreach ($campaigns['campaigns'] as $campaign) {
 
                 $mcID = $this->processCampaign($campaign);
 
@@ -246,20 +285,24 @@ class CampaignListPage extends Page {
             if ($campaigns && isset($campaigns['status']) && isset($campaigns['title']) && isset($campaigns['detail'])) {
                 $message .= ' ('.$campaigns['status'].': '.$campaigns['title'].': '.$campaigns['detail'].')';
             }
+
             if ($mailChimp->getLastError()) {
                 $message .= ' (last error: ' . $mailChimp->getLastError() . ')';
             }
+
             if ($mailChimp->getLastResponse()) {
                 $message .= ' (last response: ' . $mailChimp->getLastResponse() . ')';
             }
+
             if ($mailChimp->getLastRequest()) {
                 $message .= ' (last request: ' . $mailChimp->getLastRequest() . ')';
             }
+
             $this->logger->warning($message);
         }
 
         // delete campaigns that don't exist anymore
-        if (count($campaignIDs)) {
+        if ($campaignIDs !== []) {
             $missing = $this->Campaigns()->exclude('MailChimpID', $campaignIDs);
             if ($missing && $missing->exists()) {
                 foreach ($missing as $gone) {
@@ -294,7 +337,7 @@ class CampaignListPage extends Page {
                 // get send date
                 $sentDate = null;
                 if (isset($campaignData['send_time'])) {
-                    $date = \DateTime::createFromFormat(\DateTime::ATOM, $campaignData['send_time']);
+                    $date = DateTime::createFromFormat(DateTime::ATOM, $campaignData['send_time']);
                     if ($date !== false) {
                         $sentDate = $date->format('Y-m-d H:i:s');
                     }
@@ -303,13 +346,13 @@ class CampaignListPage extends Page {
                 // create campaign object
                 $campaign = Campaign::create();
                 $campaign->PageID = $this->ID;
-                $campaign->MailChimpID = isset($campaignData['id']) ? $campaignData['id'] : 0;
+                $campaign->MailChimpID = $campaignData['id'] ?? 0;
                 $campaign->Title = (isset($campaignData['settings']) && isset($campaignData['settings']['title'])) ? $campaignData['settings']['title'] : '';
                 $campaign->Subject = (isset($campaignData['settings']) && isset($campaignData['settings']['subject_line'])) ? $campaignData['settings']['subject_line'] : '';
                 $campaign->SentDate =  $sentDate;
-                $campaign->URL = isset($campaignData['archive_url']) ? $campaignData['archive_url'] : null;
+                $campaign->URL = $campaignData['archive_url'] ?? null;
                 $campaign->ListID = (isset($campaignData['recipients']) && isset($campaignData['recipients']['list_id'])) ? $campaignData['recipients']['list_id'] : '';
-                $campaign->SentToSegment = (isset($campaignData['recipients']) && isset($campaignData['recipients']['segment_opts'])) ? true : false;
+                $campaign->SentToSegment = isset($campaignData['recipients']) && isset($campaignData['recipients']['segment_opts']);
                 $campaign->write();
             }
 

@@ -2,17 +2,17 @@
 
 namespace Innoweb\MailChimpSignup\Extensions;
 
+use SilverStripe\Core\Extension;
+use SilverStripe\Forms\Validation\RequiredFieldsValidator;
 use Psr\SimpleCache\CacheInterface;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Forms\CheckboxField;
 use SilverStripe\Forms\FieldGroup;
 use SilverStripe\Forms\FieldList;
-use SilverStripe\Forms\RequiredFields;
 use SilverStripe\Forms\TextField;
 use SilverStripe\Forms\TextareaField;
-use SilverStripe\ORM\DataExtension;
 
-class SignupDataExtension extends DataExtension
+class SignupDataExtension extends Extension
 {
     private static $db = [
         'APIKey' =>  'Varchar(255)',
@@ -68,7 +68,7 @@ class SignupDataExtension extends DataExtension
 
     public function getCMSValidator()
     {
-        return RequiredFields::create('APIKey', 'ListID');
+        return RequiredFieldsValidator::create('APIKey', 'ListID');
     }
 
     public function onAfterWrite()

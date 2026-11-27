@@ -3,7 +3,6 @@
 namespace Innoweb\MailChimpSignup;
 
 use DrewM\MailChimp\MailChimp;
-use Innoweb\MailChimpSignup\Pages\SignupPage;
 use Psr\Log\LoggerInterface;
 use Psr\SimpleCache\CacheInterface;
 use SilverStripe\Core\Config\Config;
@@ -17,10 +16,10 @@ class MailchimpDataLoader
     private static $instances = [];
 
     private $merge_fields = null;
+
     private $categories = null;
+
     private $uses_email_type_options = null;
-    private $api_key = null;
-    private $list_id = null;
 
     private static $field_cache_seconds = 300;
 
@@ -30,13 +29,12 @@ class MailchimpDataLoader
         if (!in_array($instanceKey, self::$instances)) {
             self::$instances[$instanceKey] = new MailchimpDataLoader($APIKey, $ListID);
         }
+
         return self::$instances[$instanceKey];
     }
 
-    private function __construct($APIKey, $ListID)
+    private function __construct(private $api_key, private $list_id)
     {
-        $this->api_key = $APIKey;
-        $this->list_id = $ListID;
     }
 
     private function loadMergeFields($APIKey, $ListID)
@@ -61,15 +59,19 @@ class MailchimpDataLoader
                 if ($listInfo && isset($listInfo['status']) && isset($listInfo['error']) && isset($listInfo['title'])) {
                     $message .= ' ('.$listInfo['status'].': '.$listInfo['title'].': '.$listInfo['error'].')';
                 }
+
                 if ($mailChimp->getLastError()) {
                     $message .= ' (last error: '.$mailChimp->getLastError().')';
                 }
+
                 if ($mailChimp->getLastResponse()) {
                     $message .= ' (last response: '.print_r($mailChimp->getLastResponse(), true).')';
                 }
+
                 if ($mailChimp->getLastRequest()) {
                     $message .= ' (last reguest: '.print_r($mailChimp->getLastRequest(), true).')';
                 }
+
                 Injector::inst()->get(LoggerInterface::class)->warning($message);
 
                 return false;
@@ -175,6 +177,7 @@ class MailchimpDataLoader
         if ($this->merge_fields === null) {
             $this->merge_fields = $this->loadMergeFields($this->api_key, $this->list_id);
         }
+
         return $this->merge_fields;
     }
 
@@ -183,6 +186,7 @@ class MailchimpDataLoader
         if ($this->categories === null) {
             $this->categories = $this->loadCategories($this->api_key, $this->list_id);
         }
+
         return $this->categories;
     }
 
@@ -191,9 +195,11 @@ class MailchimpDataLoader
         if ($this->uses_email_type_options === null) {
             $this->uses_email_type_options = $this->loadListConfig($this->api_key, $this->list_id);
         }
+
         if ($this->uses_email_type_options && isset($this->uses_email_type_options['email_type_option'])) {
             return $this->uses_email_type_options['email_type_option'];
         }
+
         return $this->uses_email_type_options;
     }
 }

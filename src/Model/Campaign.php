@@ -2,6 +2,7 @@
 
 namespace Innoweb\MailChimpSignup\Model;
 
+use Override;
 use Innoweb\MailChimpSignup\Pages\CampaignListPage;
 use SilverStripe\Forms\CheckboxField;
 use SilverStripe\Forms\DateField;
@@ -41,6 +42,7 @@ class Campaign extends DataObject {
 
     private static $default_sort = 'SentDate DESC';
     
+    #[Override]
     public function getCMSFields()
     {
         $this->beforeUpdateCMSFields(function ($fields) {
@@ -85,10 +87,8 @@ class Campaign extends DataObject {
         $page = $this->Page();
         if ($this->Hidden) {
             return _t('Innoweb\\MailChimpSignup\\Model\\Campaign.StatusHiddenManual', 'Hidden (manual)');
-        } else if (
-            ($this->SentToSegment && $page->HideSentToSegments)
-            || ($this->ListID && is_array($page->ListIDs) && in_array($this->ListID, $page->ListIDs))
-        ) {
+        } elseif (($this->SentToSegment && $page->HideSentToSegments)
+        || ($this->ListID && is_array($page->ListIDs) && in_array($this->ListID, $page->ListIDs))) {
             return _t('Innoweb\\MailChimpSignup\\Model\\Campaign.StatusHiddenFilter', 'Hidden (filter)');
         } else {
             return _t('Innoweb\\MailChimpSignup\\Model\\Campaign.StatusVisible', 'Visible');

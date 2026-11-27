@@ -38,6 +38,7 @@ class SignupControllerExtension extends Extension
     ];
 
     private static $block_default_jquery_and_validate = false;
+
     private static $block_form_validation = false;
 
     public function Form()
@@ -60,8 +61,9 @@ class SignupControllerExtension extends Extension
 
             // sort fields
             $sortedData = $this->getOwner()->sortArray($fieldData, 'display_order', SORT_ASC);
+            $counter = count($sortedData);
 
-            for ($pos = 1; $pos <= count($sortedData); $pos++) {
+            for ($pos = 1; $pos <= $counter; $pos++) {
 
                 // get field data
                 $field = $sortedData[$pos-1];
@@ -106,6 +108,7 @@ class SignupControllerExtension extends Extension
                                     255
                                 );
                             }
+
                             break;
 
                         case 'number':
@@ -153,6 +156,7 @@ class SignupControllerExtension extends Extension
                             foreach ($field['options']['choices'] as $opt) {
                                 $optionSet[$opt] = $opt;
                             }
+
                             $newField = DropdownField::create(
                                 $field['tag'],
                                 $field['name'],
@@ -167,6 +171,7 @@ class SignupControllerExtension extends Extension
                             foreach ($field['options']['choices'] as $opt) {
                                 $optionSet[$opt] = $opt;
                             }
+
                             $newField = OptionsetField::create(
                                 $field['tag'],
                                 $field['name'],
@@ -230,6 +235,7 @@ class SignupControllerExtension extends Extension
                             } else {
                                 $validator->addAddressField($field['tag']);
                             }
+
                             break;
 
                         default:
@@ -372,7 +378,7 @@ class SignupControllerExtension extends Extension
             if (is_array($sessionData)) {
                 $form->loadDataFrom($sessionData);
             }
-        } catch (BadMethodCallException $e) {
+        } catch (BadMethodCallException) {
             // no session available
         }
 
@@ -381,6 +387,7 @@ class SignupControllerExtension extends Extension
             Requirements::javascript('innoweb/silverstripe-mailchimp-signup: client/dist/javascript/jquery.min.js');
             Requirements::javascript('innoweb/silverstripe-mailchimp-signup: client/dist/javascript/jquery-validate.min.js');
         }
+
         // load validation script
         if (!$this->getOwner()->config()->get('block_form_validation') && !$this->config()->get('block_form_validation')) {
             Requirements::javascript('innoweb/silverstripe-mailchimp-signup: client/dist/javascript/mailchimp-validation.min.js');
@@ -462,6 +469,7 @@ class SignupControllerExtension extends Extension
             if ($this->getOwner()->hasMethod('getSuccessLink')) {
                 $successLink = $this->getOwner()->getSuccessLink();
             }
+
             return $this->getOwner()->redirect($successLink);
 
         } else {
@@ -470,12 +478,13 @@ class SignupControllerExtension extends Extension
             $session->set('FormInfo.' . $form->FormName() . '.data', $data);
 
             // add error message
-            $form->sessionMessage($result['message'], $result['type']);
+            $form->sessionMessage((string) $result['message'], (string) $result['type']);
 
             // redirect back
             if ($this->getOwner()->hasMethod('getErrorLink')) {
                 return $this->getOwner()->redirect($this->getOwner()->getErrorLink());
             }
+
             return $this->getOwner()->redirectBack();
         }
     }
@@ -499,7 +508,7 @@ class SignupControllerExtension extends Extension
         $memberInfo = $mailChimp->get(sprintf(
             'lists/%s/members/%s',
             $this->getOwner()->data()->ListID,
-            md5(strtolower($data['EMAIL']))
+            md5(strtolower((string) $data['EMAIL']))
         ));
         $memberFound = $mailChimp->success();
 
@@ -525,41 +534,49 @@ class SignupControllerExtension extends Extension
                     if ($field['public']) {
                         if ($field['type'] == 'address') {
                             // if field type is address, get data from multiple addess fields
-                            $addressData = array();
-                            if (isset($data[$field['tag'].'_addr1']) && strlen($data[$field['tag'].'_addr1']) > 0) {
+                            $addressData = [];
+                            if (isset($data[$field['tag'].'_addr1']) && (string) $data[$field['tag'].'_addr1'] !== '') {
                                 $addressData['addr1'] = $data[$field['tag'].'_addr1'];
                             }
-                            if (isset($data[$field['tag'].'_addr2']) && strlen($data[$field['tag'].'_addr2']) > 0) {
+
+                            if (isset($data[$field['tag'].'_addr2']) && (string) $data[$field['tag'].'_addr2'] !== '') {
                                 $addressData['addr2'] = $data[$field['tag'].'_addr2'];
                             }
-                            if (isset($data[$field['tag'].'_city']) && strlen($data[$field['tag'].'_city']) > 0) {
+
+                            if (isset($data[$field['tag'].'_city']) && (string) $data[$field['tag'].'_city'] !== '') {
                                 $addressData['city'] = $data[$field['tag'].'_city'];
                             }
-                            if (isset($data[$field['tag'].'_state']) && strlen($data[$field['tag'].'_state']) > 0) {
+
+                            if (isset($data[$field['tag'].'_state']) && (string) $data[$field['tag'].'_state'] !== '') {
                                 $addressData['state'] = $data[$field['tag'].'_state'];
                             }
-                            if (isset($data[$field['tag'].'_zip']) && strlen($data[$field['tag'].'_zip']) > 0) {
+
+                            if (isset($data[$field['tag'].'_zip']) && (string) $data[$field['tag'].'_zip'] !== '') {
                                 $addressData['zip'] = $data[$field['tag'].'_zip'];
                             }
-                            if (isset($data[$field['tag'].'_country']) && strlen($data[$field['tag'].'_country']) > 0) {
+
+                            if (isset($data[$field['tag'].'_country']) && (string) $data[$field['tag'].'_country'] !== '') {
                                 $addressData['country'] = $data[$field['tag'].'_country'];
                             }
-                            if (count($addressData) > 0) {
+
+                            if ($addressData !== []) {
                                 $mergeVars[$field['tag']] = $addressData;
                             }
-                        } else if ($field['type'] == 'date') {
+                        } elseif ($field['type'] == 'date') {
                             $formattedDate = '';
-                            if (isset($data[$field['tag']]) && strlen($data[$field['tag']]) > 0) {
+                            if (isset($data[$field['tag']]) && (string) $data[$field['tag']] !== '') {
                                 $formattedDate = DBDate::create()->setValue($data[$field['tag']])->Format('yyyy-MM-dd 00:00:00');
                             }
+
                             $mergeVars[$field['tag']] = $formattedDate;
-                        } else if ($field['type'] == 'birthday') {
+                        } elseif ($field['type'] == 'birthday') {
                             $formattedDate = '';
-                            if (isset($data[$field['tag']]) && strlen($data[$field['tag']]) > 0) {
+                            if (isset($data[$field['tag']]) && (string) $data[$field['tag']] !== '') {
                                 $formattedDate = DBDate::create()->setValue($data[$field['tag']])->Format('MM/dd');
                             }
+
                             $mergeVars[$field['tag']] = $formattedDate;
-                        } else if (isset($data[$field['tag']])) {
+                        } elseif (isset($data[$field['tag']])) {
                             // add value from field
                             $mergeVars[$field['tag']] = $data[$field['tag']];
                         }
@@ -586,13 +603,10 @@ class SignupControllerExtension extends Extension
                                 $submittedGroups = [$data['groupings_' . $group['id']]];
                             }
                         }
+
                         // init group array
                         foreach ($groupOptions['interests'] as $option) {
-                            if (in_array($option['id'], $submittedGroups)) {
-                                $aGroups[$option['id']] = true;
-                            } else {
-                                $aGroups[$option['id']] = false;
-                            }
+                            $aGroups[$option['id']] = in_array($option['id'], $submittedGroups);
                         }
                     }
                 }
@@ -603,10 +617,11 @@ class SignupControllerExtension extends Extension
                 'email_address' => $data['EMAIL'],
                 'status' => $this->getOwner()->data()->RequireEmailConfirmation ? 'pending' : 'subscribed',
             ];
-            if (count($mergeVars)) {
+            if ($mergeVars !== []) {
                 $submissionData['merge_fields'] = $mergeVars;
             }
-            if (count($aGroups)) {
+
+            if ($aGroups !== []) {
                 $submissionData['interests'] = $aGroups;
             }
 
@@ -630,7 +645,7 @@ class SignupControllerExtension extends Extension
                     sprintf(
                         'lists/%s/members/%s',
                         $this->getOwner()->data()->ListID,
-                        md5(strtolower($data['EMAIL']))
+                        md5(strtolower((string) $data['EMAIL']))
                     ),
                     $submissionData
                 );
@@ -638,12 +653,10 @@ class SignupControllerExtension extends Extension
 
             // check if update/adding successful
             if ($mailChimp->success()) {
-
                 // set message
                 $returnData['type'] = 'good';
                 $returnData['message'] = $this->getOwner()->data()->ContentSuccess;
-
-            } else if (strpos($mailChimp->getLastError(), 'has signed up to a lot of lists very recently') === false) {
+            } elseif (!str_contains($mailChimp->getLastError(), 'has signed up to a lot of lists very recently')) {
                 Injector::inst()->get(LoggerInterface::class)->warning('Last Error: ' . print_r($mailChimp->getLastError(), true));
                 Injector::inst()->get(LoggerInterface::class)->warning('Last Request: ' . print_r($mailChimp->getLastRequest(), true));
                 Injector::inst()->get(LoggerInterface::class)->warning('Last Response: ' . print_r($mailChimp->getLastResponse(), true));
@@ -653,9 +666,8 @@ class SignupControllerExtension extends Extension
         return $returnData;
     }
 
-    public function sortArray()
+    public function sortArray(...$args)
     {
-        $args = func_get_args();
         $data = array_shift($args);
         foreach ($args as $n => $field) {
             if (is_string($field)) {
@@ -663,11 +675,13 @@ class SignupControllerExtension extends Extension
                 foreach ($data as $key => $row) {
                     $tmp[$key] = $row[$field];
                 }
+
                 $args[$n] = $tmp;
             }
         }
+
         $args[] = &$data;
-        call_user_func_array('array_multisort', $args);
+        call_user_func_array(array_multisort(...), $args);
         return array_pop($args);
     }
 }
