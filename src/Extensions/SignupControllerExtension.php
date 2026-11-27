@@ -381,7 +381,7 @@ class SignupControllerExtension extends Extension
         // load jquery and validate
         if (!$this->getOwner()->config()->get('block_default_jquery_and_validate') && !$this->config()->get('block_default_jquery_and_validate')) {
             Requirements::javascript('innoweb/silverstripe-mailchimp-signup: client/dist/javascript/jquery.min.js');
-            Requirements::javascript('innoweb/silverstripe-mailchimp-signup: client/dist/javascript/jquery-validate.min.js');
+            Requirements::javascript('innoweb/silverstripe-mailchimp-signup: client/dist/javascript/jquery.validate.min.js');
         }
 
         // load validation script
