@@ -28,8 +28,7 @@
   },
   "extra": {
     "expose": [
-      "client/dist",
-      "client/images"
+      "client/dist"
     ]
   }
 }
