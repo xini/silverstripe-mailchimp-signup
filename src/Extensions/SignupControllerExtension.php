@@ -2,12 +2,15 @@
 
 namespace Innoweb\MailChimpSignup\Extensions;
 
+use BadMethodCallException;
 use DrewM\MailChimp\MailChimp;
-use Innoweb\MailChimpSignup\MailchimpDataLoader;
+use Dynamic\CountryDropdownField\Fields\CountryDropdownField;
 use Innoweb\MailChimpSignup\Forms\SignupPageValidator;
+use Innoweb\MailChimpSignup\MailchimpDataLoader;
 use Psr\Log\LoggerInterface;
-use SilverStripe\Core\Extension;
 use SilverStripe\Core\Config\Config;
+use SilverStripe\Core\Config\Configurable;
+use SilverStripe\Core\Extension;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Forms\CheckboxSetField;
 use SilverStripe\Forms\CompositeField;
@@ -21,25 +24,22 @@ use SilverStripe\Forms\LiteralField;
 use SilverStripe\Forms\NumericField;
 use SilverStripe\Forms\OptionsetField;
 use SilverStripe\Forms\TextField;
+use SilverStripe\ORM\FieldType\DBDate;
 use SilverStripe\SpamProtection\Extension\FormSpamProtectionExtension;
 use SilverStripe\View\Requirements;
-use BadMethodCallException;
-use SilverStripe\Core\Config\Configurable;
-use Dynamic\CountryDropdownField\Fields\CountryDropdownField;
-use SilverStripe\ORM\FieldType\DBDate;
 
 class SignupControllerExtension extends Extension
 {
     use Configurable;
 
-    private static $allowed_actions = [
+    private static array $allowed_actions = [
         'Form',
         'success'
     ];
 
-    private static $block_default_jquery_and_validate = false;
+    private static bool $block_default_jquery_and_validate = false;
 
-    private static $block_form_validation = false;
+    private static bool $block_form_validation = false;
 
     public function Form()
     {
@@ -64,7 +64,6 @@ class SignupControllerExtension extends Extension
             $counter = count($sortedData);
 
             for ($pos = 1; $pos <= $counter; $pos++) {
-
                 // get field data
                 $field = $sortedData[$pos-1];
                 $newField = null;
@@ -82,7 +81,6 @@ class SignupControllerExtension extends Extension
                 }
 
                 if ($field['public']) {
-
                     // add field validation
                     if ($field['required']) {
                         $validator->addRequiredField($field['tag']);
@@ -90,7 +88,6 @@ class SignupControllerExtension extends Extension
 
                     // add field
                     switch ($field['type']) {
-
                         case 'text':
                             if ($field['tag'] == 'EMAIL') {
                                 $newField = EmailField::create(
@@ -191,47 +188,47 @@ class SignupControllerExtension extends Extension
                         case 'address':
                             $newField = CompositeField::create(
                                 TextField::create(
-                                    $field['tag'].'_addr1',
+                                    $field['tag'] . '_addr1',
                                     _t("Innoweb\\MailChimpSignup\\Extension\\SignupControllerExtension.AddressLine1", 'Street Address'),
                                     null,
                                     255
                                 ),
                                 TextField::create(
-                                    $field['tag'].'_addr2',
+                                    $field['tag'] . '_addr2',
                                     _t("Innoweb\\MailChimpSignup\\Extension\\SignupControllerExtension.AddressLine2", 'Unit/Floor'),
                                     null,
                                     255
                                 ),
                                 TextField::create(
-                                    $field['tag'].'_city',
+                                    $field['tag'] . '_city',
                                     _t("Innoweb\\MailChimpSignup\\Extension\\SignupControllerExtension.City", 'City'),
                                     null,
                                     50
                                 ),
                                 TextField::create(
-                                    $field['tag'].'_state',
+                                    $field['tag'] . '_state',
                                     _t("Innoweb\\MailChimpSignup\\Extension\\SignupControllerExtension.State", 'State/Province'),
                                     null,
                                     50
                                 ),
                                 TextField::create(
-                                    $field['tag'].'_zip',
+                                    $field['tag'] . '_zip',
                                     _t("Innoweb\\MailChimpSignup\\Extension\\SignupControllerExtension.ZipCode", 'Zip/Post Code'),
                                     null,
                                     20
                                 ),
                                 CountryDropdownField::create(
-                                    $field['tag'].'_country',
+                                    $field['tag'] . '_country',
                                     _t("Innoweb\\MailChimpSignup\\Extension\\SignupControllerExtension.Country", 'Country')
                                 )->setEmptyString(_t("Innoweb\\MailChimpSignup\\Extension\\SignupControllerExtension.SELECT", '- select -'))
                             )->setLegend($field['name'])->setTag('fieldset');
                             // add required fields
                             if ($field['required']) {
-                                $validator->addRequiredField($field['tag'].'_addr1');
-                                $validator->addRequiredField($field['tag'].'_city');
-                                $validator->addRequiredField($field['tag'].'_state');
-                                $validator->addRequiredField($field['tag'].'_zip');
-                                $validator->addRequiredField($field['tag'].'_country');
+                                $validator->addRequiredField($field['tag'] . '_addr1');
+                                $validator->addRequiredField($field['tag'] . '_city');
+                                $validator->addRequiredField($field['tag'] . '_state');
+                                $validator->addRequiredField($field['tag'] . '_zip');
+                                $validator->addRequiredField($field['tag'] . '_country');
                             } else {
                                 $validator->addAddressField($field['tag']);
                             }
@@ -277,7 +274,6 @@ class SignupControllerExtension extends Extension
         $groupInfo = $this->getOwner()->getMailchimpCategories();
         if ($groupInfo) {
             foreach ($groupInfo as $group) {
-
                 // get options
                 $options = [];
                 $groupOptions = $group['options'];
@@ -294,7 +290,7 @@ class SignupControllerExtension extends Extension
                     case 'radio':
                         $fields->push(
                             OptionsetField::create(
-                                'groupings_'.$group['id'],
+                                'groupings_' . $group['id'],
                                 $group['title'],
                                 $options
                             )
@@ -304,7 +300,7 @@ class SignupControllerExtension extends Extension
                     case 'checkboxes':
                         $fields->push(
                             CheckboxSetField::create(
-                                'groupings_'.$group['id'],
+                                'groupings_' . $group['id'],
                                 $group['title'],
                                 $options
                             )
@@ -314,7 +310,7 @@ class SignupControllerExtension extends Extension
                     case 'dropdown':
                         $fields->push(
                             DropdownField::create(
-                                'groupings_'.$group['id'],
+                                'groupings_' . $group['id'],
                                 $group['title'],
                                 $options
                             )
@@ -327,9 +323,9 @@ class SignupControllerExtension extends Extension
 
                     default:
                         $fields->push(
-                        LiteralField::create(
-                            $group['id'],
-                            'ERROR: UNSUPPORTED GROUP TYPE ('
+                            LiteralField::create(
+                                $group['id'],
+                                'ERROR: UNSUPPORTED GROUP TYPE ('
                                 . $group['form_field']
                                 . ') -> '
                                 . $group['id']
@@ -457,7 +453,6 @@ class SignupControllerExtension extends Extension
         $session = $this->getOwner()->getRequest()->getSession();
 
         if (isset($result['type']) && $result['type'] == 'good') {
-
             // clear session data
             $sessionData = $session->get('FormInfo.' . $form->FormName() . '.data');
             if (is_array($sessionData)) {
@@ -471,22 +466,16 @@ class SignupControllerExtension extends Extension
             }
 
             return $this->getOwner()->redirect($successLink);
-
-        } else {
-
-            // Store the submitted data in case the user needs to try again
-            $session->set('FormInfo.' . $form->FormName() . '.data', $data);
-
-            // add error message
-            $form->sessionMessage((string) $result['message'], (string) $result['type']);
-
-            // redirect back
-            if ($this->getOwner()->hasMethod('getErrorLink')) {
-                return $this->getOwner()->redirect($this->getOwner()->getErrorLink());
-            }
-
-            return $this->getOwner()->redirectBack();
         }
+        // Store the submitted data in case the user needs to try again
+        $session->set('FormInfo.' . $form->FormName() . '.data', $data);
+        // add error message
+        $form->sessionMessage((string) $result['message'], (string) $result['type']);
+        // redirect back
+        if ($this->getOwner()->hasMethod('getErrorLink')) {
+            return $this->getOwner()->redirect($this->getOwner()->getErrorLink());
+        }
+        return $this->getOwner()->redirectBack();
     }
 
     public function success()
@@ -494,7 +483,7 @@ class SignupControllerExtension extends Extension
         return $this->getOwner();
     }
 
-    public function doSubscription($data)
+    public function doSubscription(array $data): array
     {
         $returnData = [
             'type'      =>  'error',
@@ -513,16 +502,13 @@ class SignupControllerExtension extends Extension
         $memberFound = $mailChimp->success();
 
         if ($memberFound && $memberInfo && isset($memberInfo['status']) && $memberInfo['status'] == 'subscribed') {
-
             // The e-mail address has already subscribed, provide feedback
             $returnData['type'] = 'warning';
             $returnData['message'] = _t(
                 'Innoweb\\MailChimpSignup\\Extension\\SignupControllerExtension.DUPLICATE',
                 'This email address is already subscribed to this list.'
             );
-
         } else {
-
             // gather member data for submission
 
             $mergeVars = [];
@@ -535,28 +521,28 @@ class SignupControllerExtension extends Extension
                         if ($field['type'] == 'address') {
                             // if field type is address, get data from multiple addess fields
                             $addressData = [];
-                            if (isset($data[$field['tag'].'_addr1']) && (string) $data[$field['tag'].'_addr1'] !== '') {
-                                $addressData['addr1'] = $data[$field['tag'].'_addr1'];
+                            if (isset($data[$field['tag'] . '_addr1']) && (string) $data[$field['tag'] . '_addr1'] !== '') {
+                                $addressData['addr1'] = $data[$field['tag'] . '_addr1'];
                             }
 
-                            if (isset($data[$field['tag'].'_addr2']) && (string) $data[$field['tag'].'_addr2'] !== '') {
-                                $addressData['addr2'] = $data[$field['tag'].'_addr2'];
+                            if (isset($data[$field['tag'] . '_addr2']) && (string) $data[$field['tag'] . '_addr2'] !== '') {
+                                $addressData['addr2'] = $data[$field['tag'] . '_addr2'];
                             }
 
-                            if (isset($data[$field['tag'].'_city']) && (string) $data[$field['tag'].'_city'] !== '') {
-                                $addressData['city'] = $data[$field['tag'].'_city'];
+                            if (isset($data[$field['tag'] . '_city']) && (string) $data[$field['tag'] . '_city'] !== '') {
+                                $addressData['city'] = $data[$field['tag'] . '_city'];
                             }
 
-                            if (isset($data[$field['tag'].'_state']) && (string) $data[$field['tag'].'_state'] !== '') {
-                                $addressData['state'] = $data[$field['tag'].'_state'];
+                            if (isset($data[$field['tag'] . '_state']) && (string) $data[$field['tag'] . '_state'] !== '') {
+                                $addressData['state'] = $data[$field['tag'] . '_state'];
                             }
 
-                            if (isset($data[$field['tag'].'_zip']) && (string) $data[$field['tag'].'_zip'] !== '') {
-                                $addressData['zip'] = $data[$field['tag'].'_zip'];
+                            if (isset($data[$field['tag'] . '_zip']) && (string) $data[$field['tag'] . '_zip'] !== '') {
+                                $addressData['zip'] = $data[$field['tag'] . '_zip'];
                             }
 
-                            if (isset($data[$field['tag'].'_country']) && (string) $data[$field['tag'].'_country'] !== '') {
-                                $addressData['country'] = $data[$field['tag'].'_country'];
+                            if (isset($data[$field['tag'] . '_country']) && (string) $data[$field['tag'] . '_country'] !== '') {
+                                $addressData['country'] = $data[$field['tag'] . '_country'];
                             }
 
                             if ($addressData !== []) {
@@ -589,7 +575,6 @@ class SignupControllerExtension extends Extension
             $groupInfo = $this->getOwner()->getMailchimpCategories();
             if ($groupInfo) {
                 foreach ($groupInfo as $group) {
-
                     // get options
                     $groupOptions = $group['options'];
 
@@ -626,7 +611,6 @@ class SignupControllerExtension extends Extension
             }
 
             if (!$memberFound) {
-
                 // no on list, new subscription
 
                 $mailChimp->post(
@@ -636,9 +620,7 @@ class SignupControllerExtension extends Extension
                     ),
                     $submissionData
                 );
-
             } else {
-
                 // update existing record
 
                 $mailChimp->patch(
@@ -666,7 +648,7 @@ class SignupControllerExtension extends Extension
         return $returnData;
     }
 
-    public function sortArray(...$args)
+    public function sortArray(...$args): mixed
     {
         $data = array_shift($args);
         foreach ($args as $n => $field) {

@@ -5,9 +5,10 @@ namespace Innoweb\MailChimpSignup\Pages;
 use Innoweb\MailChimpSignup\Model\Campaign;
 use PageController;
 
-class CampaignListPageController extends PageController {
+class CampaignListPageController extends PageController
+{
 
-    public function init()
+    protected function init()
     {
         parent::init();
 

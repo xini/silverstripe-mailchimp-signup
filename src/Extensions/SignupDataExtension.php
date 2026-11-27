@@ -2,19 +2,19 @@
 
 namespace Innoweb\MailChimpSignup\Extensions;
 
-use SilverStripe\Core\Extension;
-use SilverStripe\Forms\Validation\RequiredFieldsValidator;
 use Psr\SimpleCache\CacheInterface;
+use SilverStripe\Core\Extension;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Forms\CheckboxField;
 use SilverStripe\Forms\FieldGroup;
 use SilverStripe\Forms\FieldList;
-use SilverStripe\Forms\TextField;
 use SilverStripe\Forms\TextareaField;
+use SilverStripe\Forms\TextField;
+use SilverStripe\Forms\Validation\RequiredFieldsValidator;
 
 class SignupDataExtension extends Extension
 {
-    private static $db = [
+    private static array $db = [
         'APIKey' =>  'Varchar(255)',
         'ListID' =>  'Varchar(255)',
         'ContentSuccess' =>  'Text',
@@ -22,21 +22,20 @@ class SignupDataExtension extends Extension
         'RequireEmailConfirmation' => 'Boolean',
     ];
 
-    private static $defaults = [
+    private static array $defaults = [
         'ContentSuccess' =>  'The subscription was successful. You will receive a confirmation email shortly.',
         'ContentError' =>  'Unfortunately an error occurred during your subscription. Please try again.',
         'RequireEmailConfirmation' => true,
     ];
 
-    public function updateCMSFields(FieldList $fields)
+    public function updateCMSFields(FieldList $fields): void
     {
         $fields->removeByName([
             'APIKey',
             'ListID',
             'RequireEmailConfirmation',
             'ContentSuccess',
-            'ContentError']
-        );
+            'ContentError']);
         $fields->addFieldsToTab(
             'Root.Mailchimp',
             [
@@ -71,14 +70,14 @@ class SignupDataExtension extends Extension
         return RequiredFieldsValidator::create('APIKey', 'ListID');
     }
 
-    public function onAfterWrite()
+    public function onAfterWrite(): void
     {
         // clear form field cache
         $cache = Injector::inst()->get(CacheInterface::class . '.MailchimpFieldCache');
         $cache->clear();
     }
 
-    public function onAfterPublish()
+    public function onAfterPublish(): void
     {
         // clear form field cache
         $cache = Injector::inst()->get(CacheInterface::class . '.MailchimpFieldCache');

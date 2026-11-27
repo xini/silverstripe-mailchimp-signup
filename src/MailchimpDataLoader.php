@@ -6,26 +6,26 @@ use DrewM\MailChimp\MailChimp;
 use Psr\Log\LoggerInterface;
 use Psr\SimpleCache\CacheInterface;
 use SilverStripe\Core\Config\Config;
-use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Core\Config\Configurable;
+use SilverStripe\Core\Injector\Injector;
 
 class MailchimpDataLoader
 {
     use Configurable;
 
-    private static $instances = [];
+    private static array $instances = [];
 
-    private $merge_fields = null;
+    private $merge_fields;
 
-    private $categories = null;
+    private $categories;
 
-    private $uses_email_type_options = null;
+    private $uses_email_type_options;
 
-    private static $field_cache_seconds = 300;
+    private static int $field_cache_seconds = 300;
 
     public static function getInstance($APIKey, $ListID)
     {
-        $instanceKey = md5($APIKey.'--'.$ListID);
+        $instanceKey = md5($APIKey . '--' . $ListID);
         if (!in_array($instanceKey, self::$instances)) {
             self::$instances[$instanceKey] = new MailchimpDataLoader($APIKey, $ListID);
         }
@@ -40,10 +40,9 @@ class MailchimpDataLoader
     private function loadMergeFields($APIKey, $ListID)
     {
         $cache = Injector::inst()->get(CacheInterface::class . '.MailchimpFieldCache');
-        $cacheKey = 'MergeFields'.md5($APIKey.$ListID);
+        $cacheKey = 'MergeFields' . md5($APIKey . $ListID);
 
         if (!$cache->has($cacheKey)) {
-
             // initialize
             $mailChimp = new MailChimp($APIKey);
             $mailChimp->verify_ssl = Config::inst()->get(MailChimp::class, 'verify_ssl');
@@ -57,19 +56,19 @@ class MailchimpDataLoader
             if (!$listInfo || !isset($listInfo['merge_fields'])) {
                 $message = "Form fields could not be loaded.";
                 if ($listInfo && isset($listInfo['status']) && isset($listInfo['error']) && isset($listInfo['title'])) {
-                    $message .= ' ('.$listInfo['status'].': '.$listInfo['title'].': '.$listInfo['error'].')';
+                    $message .= ' (' . $listInfo['status'] . ': ' . $listInfo['title'] . ': ' . $listInfo['error'] . ')';
                 }
 
                 if ($mailChimp->getLastError()) {
-                    $message .= ' (last error: '.$mailChimp->getLastError().')';
+                    $message .= ' (last error: ' . $mailChimp->getLastError() . ')';
                 }
 
                 if ($mailChimp->getLastResponse()) {
-                    $message .= ' (last response: '.print_r($mailChimp->getLastResponse(), true).')';
+                    $message .= ' (last response: ' . print_r($mailChimp->getLastResponse(), true) . ')';
                 }
 
                 if ($mailChimp->getLastRequest()) {
-                    $message .= ' (last reguest: '.print_r($mailChimp->getLastRequest(), true).')';
+                    $message .= ' (last reguest: ' . print_r($mailChimp->getLastRequest(), true) . ')';
                 }
 
                 Injector::inst()->get(LoggerInterface::class)->warning($message);
@@ -78,8 +77,7 @@ class MailchimpDataLoader
             }
 
             // store to cache
-            $cache->set($cacheKey, $listInfo, $this->config()->field_cache_seconds);
-
+            $cache->set($cacheKey, $listInfo, self::config()->get('field_cache_seconds'));
         } else {
             $listInfo = $cache->get($cacheKey);
         }
@@ -90,10 +88,9 @@ class MailchimpDataLoader
     private function loadCategories($APIKey, $ListID)
     {
         $cache = Injector::inst()->get(CacheInterface::class . '.MailchimpFieldCache');
-        $cacheKey = 'Categories'.md5($APIKey.$ListID);
+        $cacheKey = 'Categories' . md5($APIKey . $ListID);
 
         if (!$cache->has($cacheKey)) {
-
             // initialize
             $mailChimp = new MailChimp($APIKey);
             $mailChimp->verify_ssl = Config::inst()->get(MailChimp::class, 'verify_ssl');
@@ -107,7 +104,6 @@ class MailchimpDataLoader
                 $categories = [];
 
                 foreach ($groupInfo['categories'] as $group) {
-
                     // get options
                     $groupOptions = $mailChimp->get(sprintf(
                         'lists/%s/interest-categories/%s/interests?count=999',
@@ -118,16 +114,13 @@ class MailchimpDataLoader
                     $group['options'] = $groupOptions;
 
                     $categories[] = $group;
-
                 }
 
                 // store to cache
-                $cache->set($cacheKey, $categories, $this->config()->field_cache_seconds);
-
+                $cache->set($cacheKey, $categories, self::config()->get('field_cache_seconds'));
             } else {
                 $categories = false;
             }
-
         } else {
             $categories = $cache->get($cacheKey);
         }
@@ -138,10 +131,9 @@ class MailchimpDataLoader
     private function loadListConfig($APIKey, $ListID)
     {
         $cache = Injector::inst()->get(CacheInterface::class . '.MailchimpFieldCache');
-        $cacheKey = 'ListConfig'.md5($APIKey.$ListID);
+        $cacheKey = 'ListConfig' . md5($APIKey . $ListID);
 
         if (!$cache->has($cacheKey)) {
-
             // initialize
             $mailChimp = new MailChimp($APIKey);
             $mailChimp->verify_ssl = Config::inst()->get(MailChimp::class, 'verify_ssl');
@@ -152,19 +144,16 @@ class MailchimpDataLoader
             ));
 
             if ($listInfo && isset($listInfo['email_type_option'])) {
-
                 $config = [];
 
                 $config['email_type_option'] = $listInfo['email_type_option'];
 
 
                 // store to cache
-                $cache->set($cacheKey, $config, $this->config()->field_cache_seconds);
-
+                $cache->set($cacheKey, $config, self::config()->get('field_cache_seconds'));
             } else {
                 $config = false;
             }
-
         } else {
             $config = $cache->get($cacheKey);
         }
@@ -174,27 +163,21 @@ class MailchimpDataLoader
 
     public function getMergeFields()
     {
-        if ($this->merge_fields === null) {
-            $this->merge_fields = $this->loadMergeFields($this->api_key, $this->list_id);
-        }
+        $this->merge_fields ??= $this->loadMergeFields($this->api_key, $this->list_id);
 
         return $this->merge_fields;
     }
 
     public function getCategories()
     {
-        if ($this->categories === null) {
-            $this->categories = $this->loadCategories($this->api_key, $this->list_id);
-        }
+        $this->categories ??= $this->loadCategories($this->api_key, $this->list_id);
 
         return $this->categories;
     }
 
     public function getUsesEmailTypeOptions()
     {
-        if ($this->uses_email_type_options === null) {
-            $this->uses_email_type_options = $this->loadListConfig($this->api_key, $this->list_id);
-        }
+        $this->uses_email_type_options ??= $this->loadListConfig($this->api_key, $this->list_id);
 
         if ($this->uses_email_type_options && isset($this->uses_email_type_options['email_type_option'])) {
             return $this->uses_email_type_options['email_type_option'];

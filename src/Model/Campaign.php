@@ -2,19 +2,20 @@
 
 namespace Innoweb\MailChimpSignup\Model;
 
-use Override;
 use Innoweb\MailChimpSignup\Pages\CampaignListPage;
+use Override;
 use SilverStripe\Forms\CheckboxField;
 use SilverStripe\Forms\DateField;
 use SilverStripe\Forms\ReadonlyField;
 use SilverStripe\Forms\TextField;
 use SilverStripe\ORM\DataObject;
 
-class Campaign extends DataObject {
+class Campaign extends DataObject
+{
 
-    private static $table_name = 'MailChimpSignupCampaign';
+    private static string $table_name = 'MailChimpSignupCampaign';
 
-    private static $db = [
+    private static array $db = [
         'MailChimpID'       =>  'Varchar(255)',
         'Title'             =>  'Varchar(255)',
         'Subject'           =>  'Varchar(255)',
@@ -25,27 +26,27 @@ class Campaign extends DataObject {
         'SentToSegment'     =>  'Boolean'
     ];
 
-    private static $has_one = [
+    private static array $has_one = [
         'Page'          =>  CampaignListPage::class
     ];
 
-    private static $summary_fields = [
+    private static array $summary_fields = [
         'Title'             =>  'Title',
         'Subject'           =>  'Subject',
         'SentDate.Nice'     =>  'Sent',
         'Status'            =>  'Status'
     ];
 
-    private static $casting = [
+    private static array $casting = [
         'Status'        =>  'Varchar(50)'
     ];
 
-    private static $default_sort = 'SentDate DESC';
+    private static string $default_sort = 'SentDate DESC';
     
     #[Override]
     public function getCMSFields()
     {
-        $this->beforeUpdateCMSFields(function ($fields) {
+        $this->beforeUpdateCMSFields(function ($fields): void {
             
             $fields->removeByName('PageID');
             $fields->removeByName('Title');
@@ -71,10 +72,8 @@ class Campaign extends DataObject {
                 ]
             );
         });
-            
-        $fields = parent::getCMSFields();
         
-        return $fields;
+        return parent::getCMSFields();
     }
 
     public function getLink()
@@ -87,11 +86,11 @@ class Campaign extends DataObject {
         $page = $this->Page();
         if ($this->Hidden) {
             return _t('Innoweb\\MailChimpSignup\\Model\\Campaign.StatusHiddenManual', 'Hidden (manual)');
-        } elseif (($this->SentToSegment && $page->HideSentToSegments)
+        }
+        if (($this->SentToSegment && $page->HideSentToSegments)
         || ($this->ListID && is_array($page->ListIDs) && in_array($this->ListID, $page->ListIDs))) {
             return _t('Innoweb\\MailChimpSignup\\Model\\Campaign.StatusHiddenFilter', 'Hidden (filter)');
-        } else {
-            return _t('Innoweb\\MailChimpSignup\\Model\\Campaign.StatusVisible', 'Visible');
         }
+        return _t('Innoweb\\MailChimpSignup\\Model\\Campaign.StatusVisible', 'Visible');
     }
 }

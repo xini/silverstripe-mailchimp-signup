@@ -1,33 +1,32 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Innoweb\MailChimpSignup\Pages;
 
-use Page;
 use Innoweb\MailChimpSignup\Extensions\SignupDataExtension;
+use Page;
 
 class SignupPage extends Page
 {
-    private static $singular_name = 'MailChimp Signup Form';
+    private static string $singular_name = 'MailChimp Signup Form';
 
-    private static $plural_name = 'MailChimp Signup Forms';
+    private static string $plural_name = 'MailChimp Signup Forms';
 
-    private static $description = 'Signup form for a MailChimp mailing list.';
+    private static string $class_description = 'Signup form for a MailChimp mailing list.';
 
-    private static $icon = 'innoweb/silverstripe-mailchimp-signup:client/images/treeicons/page-mailchimp.png';
-
-    private static $table_name = 'MailChimpSignupPage';
+    private static string $table_name = 'MailChimpSignupPage';
 
     private static string $cms_icon_class = 'font-icon-block-form';
 
-    private static $extensions = [
+    private static array $extensions = [
         SignupDataExtension::class
     ];
 
-    private static $defaults = [
+    private static array $defaults = [
         'ShowInMenus' =>  true,
         'ShowInSearch' =>  true,
         'ProvideComments' =>  false,
         'Priority' =>  '',
     ];
-
 }
