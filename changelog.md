@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [6.0.0]
+
+* upgrade to Silverstripe 6 (Thanks @sunnysideup)
+* switch frontend build to custom node script
+
 ## [5.2.1]
 
 * update frontend dependencies

@@ -11,11 +11,13 @@ The submissions need to be confirmed by the user, they receives a confirmation e
 
 ## Requirements
 
-* SilverStripe CMS 5
-* [symbiote/silverstripe-multivaluefield ^6](https://packagist.org/packages/symbiote/silverstripe-multivaluefield)
+* Silverstripe CMS 6
 * [drewm/mailchimp-api ~2.0](https://packagist.org/packages/drewm/mailchimp-api)
+* [symbiote/silverstripe-multivaluefield ^7](https://packagist.org/packages/symbiote/silverstripe-multivaluefield)
+* [dynamic/silverstripe-country-dropdown-field ^3](https://packagist.org/packages/dynamic/silverstripe-country-dropdown-field)
 
-Note: this version is compatible with SilverStripe 5. 
+Note: this version is compatible with SilverStripe 6.
+For SilverStripe 5, please see the [5 release line](https://github.com/xini/silverstripe-mailchimp-signup/tree/5).
 For SilverStripe 4, please see the [4 release line](https://github.com/xini/silverstripe-mailchimp-signup/tree/4).
 For SilverStripe 3, please see the [3.x release line](https://github.com/xini/silverstripe-mailchimp-signup/tree/3.0).
 
